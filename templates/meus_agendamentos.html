@@ -1,29 +1,31 @@
 <!doctype html>
 <html lang="pt-BR">
+
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Barber. — Meus Agendamentos</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 </head>
 <body>
-<div class="wrap wrap--sm">
-  <div class="header header--flat">
-    <div class="logo">Barber<span>.</span></div>
-    <div class="nav-links">
-      <a href="/">Agendar</a>
-      <a href="/meus-agendamentos" class="active">Meus horários</a>
-      <a href="/logout">Sair</a>
+  <div class="wrap wrap--sm">
+    <div class="header header--flat">
+      <div class="logo logo--lg">Barbearia <span>NL</span></div>
+      <div class="nav-links">
+        <a href="/">Agendar</a>
+        <a href="/meus-agendamentos" class="active">Meus horários</a>
+        <a href="/logout">Sair</a>
+      </div>
     </div>
-  </div>
 
-  <h1>Olá, {{ nome_cliente.split()[0] }}!</h1>
-  <div class="sub">Seus agendamentos na barbearia</div>
+    <h1>Olá, {{ nome_cliente }}!</h1>
+    <div class="sub">Seus agendamentos na barbearia</div>
+    
 
-  <div class="sec-title--sm">Próximos</div>
-  {% if futuros %}
+    
+    
+    <div class="sec-title--sm">Próximos</div>
+    {% if futuros %}
     {% for ag in futuros %}
     <div class="ag-card futuro">
       <div class="ag-info">
@@ -36,12 +38,12 @@
       </div>
     </div>
     {% endfor %}
-  {% else %}
+    {% else %}
     <div class="empty">Nenhum agendamento futuro.</div>
-  {% endif %}
+    {% endif %}
 
-  <div class="sec-title--sm">Histórico</div>
-  {% if passados %}
+    <div class="sec-title--sm">Histórico</div>
+    {% if passados %}
     {% for ag in passados %}
     <div class="ag-card passado">
       <div class="ag-info">
@@ -54,11 +56,12 @@
       </div>
     </div>
     {% endfor %}
-  {% else %}
+    {% else %}
     <div class="empty">Nenhum histórico ainda.</div>
-  {% endif %}
+    {% endif %}
 
-  <a href="/" class="btn-novo">+ Novo agendamento</a>
-</div>
+    <a href="/" class="btn-novo">+ Novo agendamento</a>
+  </div>
 </body>
+
 </html>

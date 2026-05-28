@@ -145,7 +145,7 @@ body {
 /* ── Page titles ── */
 h1 {
     font-family: var(--font-serif);
-    font-size: 1.6rem;
+    font-size: 1.5rem;
     margin-bottom: 4px;
 }
 
@@ -497,9 +497,21 @@ textarea.fi { resize: none; }
 .ag-servico   { font-weight: 500; font-size: 15px; }
 .ag-det       { font-size: 13px; color: var(--muted); margin-top: 3px; }
 
-.ag-right     { text-align: right; }
+.ag-right     { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
 .ag-data      { font-size: 13px; font-weight: 500; }
 .ag-hora      { font-size: 20px; font-family: var(--font-serif); color: var(--red); }
+
+/* Botão cancelar no card */
+.btn-cancelar {
+    background: none; border: 1px solid #3a1515;
+    border-radius: 6px; color: #884444;
+    padding: 4px 10px; font-size: 11px;
+    cursor: pointer; transition: all .2s;
+    font-family: var(--font-sans); letter-spacing: .5px;
+    margin-top: 2px;
+}
+
+.btn-cancelar:hover { background: #1e0f0f; border-color: var(--red); color: #f87171; }
 
 .empty        { text-align: center; color: var(--muted); padding: 32px; font-size: 14px; }
 
@@ -861,3 +873,75 @@ textarea.fi { resize: none; }
     .fg.full,
     .fgrid--painel .full { grid-column: 1; }
 }
+
+/* ==========================================================================
+   MODAL DE CANCELAMENTO
+   ========================================================================== */
+.modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0, 0, 0, .75);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000; padding: 16px;
+    backdrop-filter: blur(3px);
+}
+
+.modal-box {
+    background: var(--card); border: 1px solid #3a1515;
+    border-radius: 16px; padding: 24px;
+    width: 100%; max-width: 420px;
+    display: flex; flex-direction: column; gap: 18px;
+    box-shadow: 0 24px 64px rgba(0,0,0,.6);
+}
+
+.modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+}
+
+.modal-titulo {
+    font-size: 15px; font-weight: 500; color: var(--text);
+}
+
+.modal-fechar {
+    background: none; border: none; color: var(--muted);
+    font-size: 16px; cursor: pointer; padding: 2px 6px;
+    transition: color .2s; line-height: 1;
+}
+
+.modal-fechar:hover { color: #f87171; }
+
+.modal-info {
+    background: #111; border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px;
+    display: flex; flex-direction: column; gap: 6px;
+}
+
+.modal-info-row {
+    display: flex; justify-content: space-between;
+    font-size: 13px; gap: 12px;
+}
+
+.modal-info-k { color: var(--muted); flex-shrink: 0; }
+.modal-info-v { color: var(--text); text-align: right; }
+
+.modal-textarea {
+    border-radius: 8px !important;
+    font-size: 13px !important;
+}
+
+.modal-btns {
+    display: flex; gap: 8px; justify-content: flex-end;
+    border-top: 1px solid var(--border); padding-top: 14px;
+    margin-top: -4px;
+}
+
+.btn-cancelar-confirmar {
+    padding: 9px 18px; font-size: 12px;
+    letter-spacing: 1px; text-transform: uppercase;
+    cursor: pointer; font-family: var(--font-sans); font-weight: 500;
+    border: none; border-radius: 6px;
+    background: #8b0000; color: #fff;
+    transition: background .2s;
+}
+
+.btn-cancelar-confirmar:hover    { background: var(--red); }
+.btn-cancelar-confirmar:disabled { background: #2d2d2d; color: #555; cursor: default; }

@@ -461,6 +461,48 @@ def agendar():
         print(f"ERRO ao agendar: {erro}")
         return jsonify({"ok": False, "erro": str(erro)}), 500
 
+# ─── CANCELAMENTO DO AGENDAMENTO ───────────────────────────────────────────────────────
+
+@app.route("/api/agendamento/<int:agendamento_id>", methods=["DELETE"])
+def api_cancelar_agendamento(agendamento_id):
+    if "usuario_id" not in session or session.get("tipo") != "barbeiro":
+        return jsonify({"ok": False, "erro": "Não autorizado."}), 403
+
+    barbeiro_id = session["usuario_id"]
+    dados = request.get_json() or {}
+    motivo = dados.get("motivo", "").strip()
+
+    try:
+        conexao = obter_conexao()
+        cursor = conexao.cursor(dictionary=True)
+
+        # Garante que o agendamento pertence a este barbeiro
+        cursor.execute(
+            "SELECT id FROM agendamento WHERE id=%s AND barbeiro_id=%s",
+            (agendamento_id, barbeiro_id)
+        )
+        if not cursor.fetchone():
+            cursor.close(); conexao.close()
+            return jsonify({"ok": False, "erro": "Agendamento não encontrado."}), 404
+
+        # Remove os serviços vinculados primeiro (FK)
+        cursor.execute(
+            "DELETE FROM agendamento_servicos WHERE agendamento_id=%s",
+            (agendamento_id,)
+        )
+        # Remove o agendamento
+        cursor.execute(
+            "DELETE FROM agendamento WHERE id=%s",
+            (agendamento_id,)
+        )
+        conexao.commit()
+        cursor.close()
+        conexao.close()
+        return jsonify({"ok": True})
+
+    except Exception as e:
+        print(f"ERRO ao cancelar agendamento: {e}")
+        return jsonify({"ok": False, "erro": str(e)}), 500
 
 # ─── AGENDA DO BARBEIRO ───────────────────────────────────────────────────────
 

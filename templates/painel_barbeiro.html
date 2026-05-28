@@ -11,11 +11,11 @@
 <body>
 <div class="wrap wrap--md">
   <div class="header header--flat">
-    <div class="logo">Barber<span>.</span></div>
+    <div class="logo logo--lg">Barbearia <span>NL</span></div>
     <div class="nav-links"><a href="/logout">Sair</a></div>
   </div>
 
-  <h1>Olá, {{ nome_barbeiro.split()[0] }}!</h1>
+  <h1>Olá, {{ nome_barbeiro }}!</h1>
   <div class="sub">Painel do barbeiro</div>
 
   <div class="tabs">
@@ -29,7 +29,7 @@
     <div class="sec-title--sm">Próximos</div>
     {% if futuros %}
       {% for ag in futuros %}
-      <div class="ag-card futuro">
+      <div class="ag-card futuro" id="ag-{{ ag.id }}">
         <div class="ag-info">
           <div class="ag-servico">{{ ag.servico }}</div>
           <div class="ag-det">{{ ag.cliente }} · R$ {{ "%.2f"|format(ag.preco)|replace('.', ',') }} · {{ ag.duracao_min }} min</div>
@@ -37,6 +37,13 @@
         <div class="ag-right">
           <div class="ag-data">{{ ag.data.strftime('%d/%m/%Y') }}</div>
           <div class="ag-hora">{{ ag.horario }}</div>
+          <button class="btn-cancelar"
+            data-id="{{ ag.id }}"
+            data-cliente="{{ ag.cliente }}"
+            data-servico="{{ ag.servico }}"
+            data-horario="{{ ag.horario }}"
+            data-data="{{ ag.data.strftime('%d/%m/%Y') }}"
+            onclick="abrirModalCancelar(this)">Cancelar</button>
         </div>
       </div>
       {% endfor %}
@@ -155,6 +162,28 @@
       </div>
 
     </div>
+  </div>
+</div>
+
+<!-- ── MODAL CANCELAR ── -->
+<div class="modal-overlay" id="modal-cancelar" style="display:none" onclick="fecharModal(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <span class="modal-titulo">Cancelar agendamento</span>
+      <button class="modal-fechar" onclick="fecharModalDireto()">✕</button>
+    </div>
+    <div class="modal-info" id="modal-info"></div>
+    <div class="fg" style="margin-bottom:0">
+      <label class="flbl" style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px">
+        Motivo <span style="color:#555;font-size:11px;text-transform:none;letter-spacing:0">(opcional)</span>
+      </label>
+      <textarea class="fi modal-textarea" id="modal-motivo" rows="3" placeholder="Ex: Imprevisto, cliente solicitou..."></textarea>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-sec" onclick="fecharModalDireto()">Voltar</button>
+      <button class="btn btn-cancelar-confirmar" id="btn-confirmar-cancel" onclick="confirmarCancelamento()">Confirmar cancelamento</button>
+    </div>
+    <div class="feedback-bar" id="fb-modal"></div>
   </div>
 </div>
 
@@ -458,6 +487,89 @@ async function removerExcecao() {
   } catch(e) { mostrarFeedback(fb, 'Erro de conexão.', false); }
 }
 
+// ──────────────────────────────────────────
+// CANCELAMENTO
+// ──────────────────────────────────────────
+let _cancelId = null;
+
+function abrirModalCancelar(btn) {
+  const id      = btn.dataset.id;
+  const cliente = btn.dataset.cliente;
+  const servico = btn.dataset.servico;
+  const horario = btn.dataset.horario;
+  const data    = btn.dataset.data;
+  _cancelId = id;
+  document.getElementById('modal-motivo').value = '';
+  document.getElementById('fb-modal').style.display = 'none';
+  document.getElementById('btn-confirmar-cancel').disabled = false;
+  document.getElementById('modal-info').innerHTML =
+    `<div class="modal-info-row"><span class="modal-info-k">Cliente</span><span class="modal-info-v">${cliente}</span></div>
+     <div class="modal-info-row"><span class="modal-info-k">Serviço</span><span class="modal-info-v">${servico}</span></div>
+     <div class="modal-info-row"><span class="modal-info-k">Data</span><span class="modal-info-v">${data} às ${horario}</span></div>`;
+  document.getElementById('modal-cancelar').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function fecharModal(e) {
+  if (e.target === document.getElementById('modal-cancelar')) fecharModalDireto();
+}
+
+function fecharModalDireto() {
+  document.getElementById('modal-cancelar').style.display = 'none';
+  document.body.style.overflow = '';
+  _cancelId = null;
+}
+
+async function confirmarCancelamento() {
+  if (!_cancelId) return;
+  const motivo = document.getElementById('modal-motivo').value.trim();
+  const btn = document.getElementById('btn-confirmar-cancel');
+  const fb = document.getElementById('fb-modal');
+  btn.disabled = true;
+  btn.textContent = 'Cancelando...';
+  try {
+    const res = await fetch(`/api/agendamento/${_cancelId}`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ motivo })
+    });
+    const json = await res.json();
+    if (json.ok) {
+      const card = document.getElementById('ag-' + _cancelId);
+      if (card) {
+        card.style.transition = 'opacity .3s, transform .3s';
+        card.style.opacity = '0';
+        card.style.transform = 'translateX(12px)';
+        setTimeout(() => {
+          card.remove();
+          const restantes = document.querySelectorAll('.ag-card.futuro');
+          if (restantes.length === 0) {
+            const sec = document.querySelector('#tab-agendamentos .sec-title--sm');
+            if (sec) {
+              const empty = document.createElement('div');
+              empty.className = 'empty';
+              empty.textContent = 'Nenhum agendamento futuro.';
+              sec.insertAdjacentElement('afterend', empty);
+            }
+          }
+        }, 300);
+      }
+      fecharModalDireto();
+    } else {
+      mostrarFeedback(fb, json.erro || 'Erro ao cancelar.', false);
+      btn.disabled = false;
+      btn.textContent = 'Confirmar cancelamento';
+    }
+  } catch(e) {
+    mostrarFeedback(fb, 'Erro de conexão.', false);
+    btn.disabled = false;
+    btn.textContent = 'Confirmar cancelamento';
+  }
+}
+
+// ──────────────────────────────────────────
+// UTILS
+// ──────────────────────────────────────────
 function mostrarFeedback(el, msg, ok) {
   el.textContent = msg;
   el.className = 'feedback-bar ' + (ok ? 'ok' : 'err');
