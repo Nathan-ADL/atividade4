@@ -1,0 +1,863 @@
+/* ==========================================================================
+   Barber. — CSS Global
+   Cobre: index, painel, meus-agendamentos, login, cadastro
+   ========================================================================== */
+
+/* ── Reset & Base ── */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --bg:        #0e0e0e;
+    --bg-deep:   #121212;
+    --card:      #161616;
+    --card-alt:  #1a1a1a;
+    --border:    #2a2a2a;
+    --border-dim:#2d2d2d;
+    --red:       #cc1111;
+    --red-dim:   #991010;
+    --red-hover: #e61515;
+    --red-bg:    #251818;
+    --text:      #f0f0f0;
+    --text-full: #ffffff;
+    --muted:     #888888;
+    --muted-lt:  #aaaaaa;
+    --input-bg:  #1e1e1e;
+    --green:     #22c55e;
+    --green-bg:  #0f1e13;
+    --yellow:    #f59e0b;
+    --yellow-bg: #1a1505;
+    --font-sans: 'DM Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --font-serif:'Playfair Display', Georgia, serif;
+}
+
+body {
+    font-family: var(--font-sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+/* ── Wrappers ── */
+.wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 3rem;
+}
+
+.wrap--md {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 24px 16px 64px;
+}
+
+.wrap--sm {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 24px 16px;
+}
+
+/* ── Centred layout (login / cadastro) ── */
+.page-centered {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 420px;
+}
+
+/* ── Logo ── */
+.logo {
+    font-family: var(--font-serif);
+    font-size: 1.6rem;
+    font-weight: 500;
+    letter-spacing: -0.5px;
+    color: var(--text-full);
+}
+
+.logo--lg {
+    font-size: 2.2rem;
+    text-align: center;
+    margin-bottom: 6px;
+    letter-spacing: -1px;
+}
+
+.logo span { color: var(--red); }
+
+/* ── Header ── */
+.header {
+    border-bottom: 2px solid var(--red);
+    padding-bottom: 1.25rem;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+}
+
+.header--flat {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 32px;
+    align-items: center;
+}
+
+.tagline {
+    font-size: 12px;
+    color: var(--muted-lt);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.tagline--center {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 36px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+/* ── Nav links ── */
+.nav-links {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+}
+
+.nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    transition: color .2s;
+}
+
+.nav-links a:hover  { color: var(--text); }
+.nav-links a.active { color: var(--red); }
+
+/* ── Page titles ── */
+h1 {
+    font-family: var(--font-serif);
+    font-size: 1.6rem;
+    margin-bottom: 4px;
+}
+
+.sub {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 32px;
+}
+
+/* ==========================================================================
+   INDEX — Steps de navegação
+   ========================================================================== */
+.steps {
+    display: flex;
+    gap: 0;
+    margin-bottom: 2rem;
+    border: 1px solid var(--border-dim);
+    background: var(--card-alt);
+}
+
+.step {
+    flex: 1;
+    padding: 10px 8px;
+    text-align: center;
+    border-right: 1px solid var(--border-dim);
+    cursor: default;
+}
+
+.step:last-child { border-right: none; }
+
+.step-n {
+    font-size: 11px;
+    font-weight: 500;
+    color: #555555;
+    margin-bottom: 2px;
+}
+
+.step-lbl { font-size: 12px; color: #555555; }
+
+.step.active .step-n,
+.step.active .step-lbl { color: var(--text-full); }
+
+.step.active {
+    border-top: 2px solid var(--red);
+    margin-top: -1px;
+    background: #222222;
+}
+
+.step.done .step-n,
+.step.done .step-lbl { color: var(--red); }
+
+/* ── Panels ── */
+.panel         { display: none; }
+.panel.active  { display: block; }
+
+.sec-title {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-full);
+    margin-bottom: 1.25rem;
+}
+
+/* ── Lista de Serviços (index) ── */
+.srv-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.srv-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    border: 1px solid var(--border-dim);
+    cursor: pointer;
+    background: var(--card-alt);
+}
+
+.srv-item:hover      { border-color: #444444; background: #222222; }
+.srv-item.sel        { border-color: var(--red); border-left: 3px solid var(--red); background: var(--red-bg); }
+
+.srv-left            { display: flex; flex-direction: column; gap: 2px; }
+.srv-name            { font-size: 14px; font-weight: 500; color: var(--text-full); }
+.srv-meta            { font-size: 12px; color: var(--muted-lt); }
+
+.srv-right           { display: flex; align-items: center; gap: 12px; }
+.srv-price           { font-size: 14px; font-weight: 500; color: var(--text-full); }
+
+.srv-check {
+    width: 18px; height: 18px;
+    border: 1px solid #444444;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    background: var(--bg-deep);
+}
+
+.srv-item.sel .srv-check {
+    background: var(--red);
+    border-color: var(--red);
+    color: var(--text-full);
+}
+
+/* ── Lista de Barbeiros (index) ── */
+.bar-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.bar-card {
+    padding: 14px;
+    border: 1px solid var(--border-dim);
+    cursor: pointer;
+    text-align: center;
+    background: var(--card-alt);
+}
+
+.bar-card:hover     { border-color: #444444; background: #222222; }
+.bar-card.sel       { border-color: var(--red); border-top: 2px solid var(--red); background: var(--red-bg); }
+
+.bar-av {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--red);
+    color: var(--text-full);
+    font-size: 13px; font-weight: 500;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 8px;
+}
+
+.bar-card.sel .bar-av { background: var(--text-full); color: var(--red); }
+
+.bar-name  { font-size: 13px; font-weight: 500; color: var(--text-full); margin-bottom: 2px; }
+.bar-spec  { font-size: 11px; color: var(--muted-lt); }
+
+/* ── Calendário (index) ── */
+.cal-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.cal-lbl  { font-size: 14px; font-weight: 500; color: var(--text-full); }
+
+.cal-btn {
+    background: var(--card-alt);
+    border: 1px solid var(--border-dim);
+    width: 28px; height: 28px;
+    cursor: pointer; font-size: 14px; color: var(--text-full);
+    display: flex; align-items: center; justify-content: center;
+}
+
+.cal-btn:hover { border-color: var(--red); color: var(--red); }
+
+.dgrid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 3px;
+    margin-bottom: 1.5rem;
+}
+
+.dlbl {
+    text-align: center; font-size: 11px;
+    color: #666666; padding: 4px 0; text-transform: uppercase;
+}
+
+.dcell {
+    text-align: center; padding: 7px 4px;
+    font-size: 13px; color: var(--text-full);
+    cursor: pointer; border: 1px solid transparent;
+    background: var(--card-alt);
+}
+
+.dcell:hover:not(.empty):not(.past) { border-color: var(--red); }
+.dcell.sel   { background: var(--red); color: var(--text-full); }
+.dcell.today { color: var(--red); font-weight: 500; border: 1px solid var(--red); }
+.dcell.past,
+.dcell.empty { color: #444444; cursor: default; background: transparent; }
+
+/* ── Grade de Horários (index) ── */
+.times-lbl {
+    font-size: 12px; color: var(--muted-lt);
+    text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.tgrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+    gap: 6px;
+    margin-bottom: 1.5rem;
+}
+
+.tslot {
+    padding: 8px 4px; text-align: center;
+    font-size: 13px; border: 1px solid var(--border-dim);
+    cursor: pointer; color: var(--text-full);
+    background: var(--card-alt);
+}
+
+.tslot:hover:not(.off) { border-color: var(--red); }
+.tslot.sel             { background: var(--red); color: var(--text-full); border-color: var(--red); }
+.tslot.off             { color: #444444; cursor: default; background: #151515; border-color: #222222; }
+
+/* ── Formulários (index) ── */
+.fgrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 1.5rem;
+}
+
+.fg           { display: flex; flex-direction: column; gap: 5px; }
+.fg.full      { grid-column: 1 / -1; }
+
+.flbl {
+    font-size: 11px; color: var(--muted-lt);
+    text-transform: uppercase; letter-spacing: 1px;
+}
+
+input.fi,
+textarea.fi {
+    border: 1px solid var(--border-dim);
+    padding: 9px 12px; font-size: 13px;
+    font-family: var(--font-sans);
+    color: var(--text-full); background: var(--card-alt);
+    width: 100%; outline: none;
+}
+
+input.fi:focus,
+textarea.fi:focus { border-color: var(--red); }
+
+textarea.fi { resize: none; }
+
+/* ── Sumário (index) ── */
+.summary {
+    border: 1px solid var(--border-dim);
+    padding: 14px; margin-bottom: 1.5rem;
+    background: var(--card-alt);
+}
+
+.sum-row {
+    display: flex; justify-content: space-between;
+    font-size: 13px; margin-bottom: 6px;
+}
+
+.sum-k  { color: var(--muted-lt); }
+.sum-v  { color: var(--text-full); text-align: right; max-width: 55%; }
+
+.sum-tot {
+    border-top: 1px solid var(--border-dim);
+    padding-top: 10px;
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 4px;
+}
+
+.tot-lbl { font-size: 13px; color: var(--text-full); font-weight: 500; }
+.tot-val { font-size: 1.25rem; font-weight: 500; color: var(--red); }
+
+/* ── Botões ── */
+.btn-row {
+    display: flex; gap: 8px; justify-content: flex-end;
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--border-dim); padding-top: 1rem;
+}
+
+.btn {
+    padding: 9px 20px; font-size: 12px;
+    letter-spacing: 1px; text-transform: uppercase;
+    cursor: pointer; font-family: var(--font-sans); font-weight: 500;
+    border: none;
+}
+
+.btn-sec {
+    background: var(--card-alt);
+    border: 1px solid var(--border-dim);
+    color: var(--muted-lt);
+}
+
+.btn-sec:hover { border-color: var(--text-full); color: var(--text-full); }
+
+.btn-pri            { background: var(--red); color: var(--text-full); }
+.btn-pri:hover      { background: var(--red-hover); }
+.btn-pri:disabled   { background: var(--border-dim); color: #555555; cursor: default; }
+
+/* ── Tela de Sucesso (index) ── */
+.ok          { text-align: center; padding: 3rem 1rem; }
+
+.ok-icon {
+    width: 56px; height: 56px;
+    border: 1.5px solid var(--red); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 1.25rem;
+    color: var(--red); font-size: 22px;
+}
+
+.ok-title    { font-size: 1.2rem; font-weight: 500; color: var(--text-full); margin-bottom: 6px; }
+.ok-sub      { font-size: 13px; color: var(--muted-lt); line-height: 1.6; }
+
+/* ==========================================================================
+   PAINEL DO BARBEIRO
+   ========================================================================== */
+
+/* Tabs */
+.tabs {
+    display: flex; gap: 4px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 28px;
+}
+
+.tab {
+    padding: 10px 20px; font-size: 14px; font-weight: 500;
+    color: var(--muted); cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all .2s; background: none;
+    border-top: none; border-left: none; border-right: none;
+    font-family: var(--font-sans);
+}
+
+.tab:hover              { color: var(--text); }
+.tab.active             { color: var(--text); border-bottom-color: var(--red); }
+
+.tab-panel              { display: none; }
+.tab-panel.active       { display: block; }
+
+/* Seção título (painel) */
+.sec-title--sm {
+    font-size: 11px; text-transform: uppercase;
+    letter-spacing: 2px; color: var(--muted);
+    margin-bottom: 12px; margin-top: 24px;
+}
+
+.sec-title--sm:first-child { margin-top: 0; }
+
+/* Cards de agendamento */
+.ag-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px 20px;
+    margin-bottom: 10px;
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+}
+
+.ag-card.futuro  { border-left: 3px solid var(--red); }
+.ag-card.passado { opacity: .55; }
+
+.ag-info      { flex: 1; }
+.ag-servico   { font-weight: 500; font-size: 15px; }
+.ag-det       { font-size: 13px; color: var(--muted); margin-top: 3px; }
+
+.ag-right     { text-align: right; }
+.ag-data      { font-size: 13px; font-weight: 500; }
+.ag-hora      { font-size: 20px; font-family: var(--font-serif); color: var(--red); }
+
+.empty        { text-align: center; color: var(--muted); padding: 32px; font-size: 14px; }
+
+/* Grade de serviços */
+.srv-grid    { display: grid; gap: 10px; margin-bottom: 28px; }
+
+.srv-row {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 14px 18px;
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+}
+
+.srv-nome    { font-weight: 500; font-size: 15px; }
+.srv-desc    { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+.srv-badges  { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+
+.badge {
+    background: #1e1e1e; border: 1px solid var(--border);
+    border-radius: 6px; padding: 4px 10px;
+    font-size: 12px; color: var(--muted);
+}
+
+.badge.preco { color: var(--text); font-weight: 500; }
+
+.btn-del {
+    background: none; border: 1px solid #3a1515;
+    border-radius: 6px; color: #c05050;
+    padding: 5px 10px; font-size: 12px;
+    cursor: pointer; transition: all .2s;
+}
+
+.btn-del:hover { background: #1e0f0f; border-color: var(--red); color: var(--red); }
+
+/* Form card */
+.form-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 22px;
+}
+
+.form-title {
+    font-size: 14px; font-weight: 500; margin-bottom: 18px;
+    color: var(--muted); text-transform: uppercase; letter-spacing: 1px;
+}
+
+/* fgrid variante painel */
+.fgrid--painel                { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.fgrid--painel .full          { grid-column: 1 / -1; }
+
+.fg label {
+    display: block; font-size: 11px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;
+}
+
+.fg input, .fg textarea {
+    width: 100%; background: var(--input-bg);
+    border: 1.5px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; color: var(--text);
+    font-family: var(--font-sans); font-size: 14px;
+    outline: none; transition: border-color .2s; resize: none;
+}
+
+.fg input:focus, .fg textarea:focus { border-color: var(--red); }
+
+.btn-add {
+    margin-top: 16px; padding: 11px 24px;
+    background: var(--red); border: none; border-radius: 8px;
+    color: #fff; font-family: var(--font-sans);
+    font-size: 14px; font-weight: 500; cursor: pointer; transition: background .2s;
+}
+
+.btn-add:hover { background: var(--red-dim); }
+
+.ok-msg {
+    background: var(--green-bg); border: 1px solid #1a5c2a;
+    border-radius: 8px; padding: 10px 14px;
+    font-size: 13px; color: var(--green);
+    margin-top: 14px; display: none;
+}
+
+.erro-msg {
+    background: #1e0f0f; border: 1px solid #5c1a1a;
+    border-radius: 8px; padding: 10px 14px;
+    font-size: 13px; color: #f87171;
+    margin-top: 14px; display: none;
+}
+
+/* Agenda layout */
+.agenda-layout {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+}
+
+/* Padrão semanal */
+.padrao-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px;
+}
+
+.padrao-card .form-title { margin-bottom: 14px; }
+
+.dia-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.dia-label { width: 36px; font-size: 13px; font-weight: 500; color: var(--muted); flex-shrink: 0; }
+
+.dia-toggle { position: relative; width: 36px; height: 20px; flex-shrink: 0; }
+.dia-toggle input { opacity: 0; width: 0; height: 0; }
+
+.dia-toggle .slider {
+    position: absolute; inset: 0;
+    background: #2a2a2a; border-radius: 20px; cursor: pointer; transition: .2s;
+}
+
+.dia-toggle .slider::before {
+    content: ''; position: absolute;
+    width: 14px; height: 14px; left: 3px; bottom: 3px;
+    background: var(--muted); border-radius: 50%; transition: .2s;
+}
+
+.dia-toggle input:checked + .slider { background: var(--red); }
+.dia-toggle input:checked + .slider::before { transform: translateX(16px); background: #fff; }
+
+.dia-times { display: flex; gap: 6px; flex: 1; }
+
+.dia-times input[type="time"] {
+    flex: 1; background: var(--input-bg);
+    border: 1.5px solid var(--border); border-radius: 7px;
+    padding: 6px 8px; color: var(--text);
+    font-family: var(--font-sans); font-size: 13px;
+    outline: none; transition: border-color .2s; min-width: 0;
+}
+
+.dia-times input[type="time"]:focus    { border-color: var(--red); }
+.dia-times input[type="time"]:disabled { opacity: .3; cursor: not-allowed; }
+.dia-sep { font-size: 11px; color: var(--muted); align-self: center; }
+
+.btn-salvar-padrao {
+    width: 100%; margin-top: 16px; padding: 10px;
+    background: var(--red); border: none; border-radius: 8px;
+    color: #fff; font-family: var(--font-sans);
+    font-size: 14px; font-weight: 500; cursor: pointer; transition: background .2s;
+}
+
+.btn-salvar-padrao:hover { background: var(--red-dim); }
+
+/* Calendário de exceções */
+.cal-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px;
+}
+
+.cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+
+.cal-nav-btn {
+    background: none; border: 1px solid var(--border);
+    border-radius: 7px; color: var(--muted);
+    width: 30px; height: 30px; cursor: pointer;
+    font-size: 15px; transition: all .2s;
+}
+
+.cal-nav-btn:hover { border-color: var(--red); color: var(--text); }
+.cal-mes-lbl { font-size: 14px; font-weight: 500; }
+
+.cal-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    gap: 3px; margin-bottom: 12px;
+}
+
+.cal-dlbl { text-align: center; font-size: 10px; color: var(--muted); padding: 4px 0; text-transform: uppercase; }
+
+.cal-day {
+    aspect-ratio: 1;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 7px; font-size: 12px; cursor: pointer;
+    transition: all .15s; position: relative;
+    border: 1.5px solid transparent; user-select: none;
+}
+
+.cal-day.empty   { cursor: default; }
+.cal-day.past    { color: #444; cursor: default; }
+.cal-day.domingo { color: #555; cursor: default; }
+.cal-day.normal:hover { background: #222; border-color: #444; }
+.cal-day.hoje    { border-color: #444; color: var(--text); }
+.cal-day.sel     { background: #2a0a0a; border-color: var(--red) !important; color: var(--text); }
+
+.cal-day.excecao-folga              { background: #1a0a0a; color: #c05050; }
+.cal-day.excecao-folga::after       { content: '✕'; position: absolute; bottom: 2px; right: 3px; font-size: 8px; color: var(--red); }
+.cal-day.excecao-horario            { background: #0f1a0a; color: #6ee7a0; }
+.cal-day.excecao-horario::after     { content: '✎'; position: absolute; bottom: 2px; right: 3px; font-size: 9px; color: var(--green); }
+.cal-day.tem-agendamento            { font-weight: 700; }
+.cal-day.tem-agendamento::before    { content: ''; position: absolute; top: 3px; right: 3px; width: 5px; height: 5px; background: var(--red); border-radius: 50%; }
+
+/* Legenda */
+.legenda { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+.leg-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+.leg-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.leg-dot.excecao-h { background: #0f1a0a; border: 1px solid var(--green); }
+.leg-dot.excecao-f { background: #1a0a0a; border: 1px solid var(--red); }
+.leg-dot.agend     { background: var(--bg); border: 1px solid var(--border); position: relative; }
+.leg-dot.agend::after { content: ''; position: absolute; top: 1px; right: 1px; width: 4px; height: 4px; background: var(--red); border-radius: 50%; }
+
+/* Modo seleção múltipla */
+.sel-mode-bar {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    background: var(--yellow-bg); border: 1px solid #3a2e05;
+    border-radius: 10px; margin-bottom: 12px; cursor: pointer;
+}
+
+.sel-mode-bar label { font-size: 13px; color: var(--yellow); cursor: pointer; flex: 1; }
+.sel-mode-bar input[type="checkbox"] { accent-color: var(--yellow); cursor: pointer; }
+.sel-count { font-size: 12px; color: var(--muted); }
+
+/* Painel de edição */
+.edit-panel {
+    background: #111; border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; margin-top: 12px;
+}
+
+.edit-panel-title { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 12px; }
+
+.edit-tipo { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+
+.tipo-opt {
+    padding: 10px; background: var(--card);
+    border: 1.5px solid var(--border); border-radius: 8px;
+    text-align: center; font-size: 13px; color: var(--muted);
+    cursor: pointer; transition: all .2s;
+}
+
+.tipo-opt:hover              { border-color: #444; color: var(--text); }
+.tipo-opt.active-folga       { border-color: var(--red); color: #f87171; background: #1a0a0a; }
+.tipo-opt.active-horario     { border-color: var(--green); color: var(--green); background: var(--green-bg); }
+
+.edit-times { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+
+.edit-times input[type="time"] {
+    flex: 1; background: var(--input-bg);
+    border: 1.5px solid var(--border); border-radius: 8px;
+    padding: 9px 12px; color: var(--text);
+    font-family: var(--font-sans); font-size: 14px;
+    outline: none; transition: border-color .2s;
+}
+
+.edit-times input[type="time"]:focus { border-color: var(--green); }
+.edit-times .sep { color: var(--muted); font-size: 13px; }
+
+.edit-btns { display: flex; gap: 8px; }
+
+.btn-aplicar {
+    flex: 1; padding: 10px; border: none; border-radius: 8px;
+    font-family: var(--font-sans); font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all .2s;
+}
+
+.btn-aplicar.aplicar        { background: var(--red); color: #fff; }
+.btn-aplicar.aplicar:hover  { background: var(--red-dim); }
+.btn-aplicar.limpar         { background: #1e1e1e; color: var(--muted); border: 1px solid var(--border); }
+.btn-aplicar.limpar:hover   { border-color: var(--red); color: #f87171; }
+
+.feedback-bar {
+    padding: 8px 14px; border-radius: 8px;
+    font-size: 13px; text-align: center;
+    margin-top: 10px; display: none;
+}
+
+.feedback-bar.ok  { background: var(--green-bg); color: var(--green); border: 1px solid #1a5c2a; }
+.feedback-bar.err { background: #1e0f0f; color: #f87171; border: 1px solid #5c1a1a; }
+
+/* ==========================================================================
+   MEUS AGENDAMENTOS
+   ========================================================================== */
+.btn-novo {
+    display: inline-block; margin-top: 24px;
+    padding: 12px 24px; background: var(--red);
+    border-radius: 8px; color: #fff;
+    text-decoration: none; font-size: 14px; font-weight: 500;
+    transition: opacity .2s;
+}
+
+.btn-novo:hover { opacity: .85; }
+
+/* ==========================================================================
+   LOGIN & CADASTRO
+   ========================================================================== */
+
+/* Seletor de tipo */
+.tipo-sel { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 28px; }
+
+.tipo-btn {
+    padding: 14px; background: var(--card);
+    border: 1.5px solid var(--border); border-radius: 10px;
+    color: var(--muted); font-family: var(--font-sans);
+    font-size: 14px; font-weight: 500; cursor: pointer;
+    transition: all .2s;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+}
+
+.tipo-btn .icon  { font-size: 22px; }
+.tipo-btn:hover  { border-color: #444; color: var(--text); }
+.tipo-btn.active { border-color: var(--red); color: var(--text); background: #1c1212; }
+
+/* Card de formulário */
+.card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; padding: 28px;
+}
+
+.field { margin-bottom: 16px; }
+
+.field label {
+    display: block; font-size: 12px; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 7px;
+}
+
+.field input {
+    width: 100%; background: var(--input-bg);
+    border: 1.5px solid var(--border); border-radius: 8px;
+    padding: 11px 14px; color: var(--text);
+    font-family: var(--font-sans); font-size: 14px;
+    outline: none; transition: border-color .2s;
+}
+
+.field input:focus { border-color: var(--red); }
+
+.btn-main {
+    width: 100%; padding: 13px;
+    background: var(--red); border: none; border-radius: 8px;
+    color: #fff; font-family: var(--font-sans);
+    font-size: 15px; font-weight: 500; cursor: pointer;
+    margin-top: 8px; transition: background .2s;
+}
+
+.btn-main:hover      { background: var(--red-dim); }
+.btn-main:disabled   { opacity: .5; cursor: not-allowed; }
+
+.footer-link { text-align: center; margin-top: 18px; font-size: 13px; color: var(--muted); }
+.footer-link a { color: var(--red); text-decoration: none; font-weight: 500; }
+
+/* Erro (inline, login/cadastro) */
+.erro-msg--top {
+    background: #1e0f0f; border: 1px solid #5c1a1a;
+    border-radius: 8px; padding: 10px 14px;
+    font-size: 13px; color: #f87171;
+    margin-bottom: 16px; display: none;
+}
+
+/* Campo condicional (barbeiro) */
+.admin-field { display: none; }
+
+/* ==========================================================================
+   Responsivo
+   ========================================================================== */
+@media (max-width: 580px) {
+    .agenda-layout { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+    .fgrid,
+    .fgrid--painel { grid-template-columns: 1fr; }
+    .fg.full,
+    .fgrid--painel .full { grid-column: 1; }
+}

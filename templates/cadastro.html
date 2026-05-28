@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Barber. — Criar conta</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+</head>
+<body class="page-centered">
+<div class="container">
+  <div class="logo logo--lg">Barber<span>.</span></div>
+  <div class="tagline--center">Criar conta</div>
+
+  <div class="tipo-sel">
+    <button class="tipo-btn" id="btn-cliente" onclick="setTipo('cliente')">
+      <span class="icon">👤</span> Cliente
+    </button>
+    <button class="tipo-btn" id="btn-barbeiro" onclick="setTipo('barbeiro')">
+      <span class="icon">✂️</span> Barbeiro
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="erro-msg--top" id="erro"></div>
+
+    <div class="field">
+      <label>Nome completo</label>
+      <input type="text" id="nome" placeholder="Seu nome" />
+    </div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="email" placeholder="seu@email.com" />
+    </div>
+    <div class="field">
+      <label>Senha</label>
+      <input type="password" id="senha" placeholder="Mínimo 6 caracteres" />
+    </div>
+    <div class="field admin-field" id="admin-field">
+      <label>Senha administrativa</label>
+      <input type="password" id="senha-admin" placeholder="Fornecida pelo gerente" />
+    </div>
+
+    <button class="btn-main" onclick="cadastrar()">Criar conta</button>
+  </div>
+
+  <div class="footer-link">
+    Já tem conta? <a href="/login">Entrar</a>
+  </div>
+</div>
+
+<script>
+  let tipoAtual = '{{ tipo }}';
+
+  function setTipo(t) {
+    tipoAtual = t;
+    document.getElementById('btn-cliente').classList.toggle('active', t === 'cliente');
+    document.getElementById('btn-barbeiro').classList.toggle('active', t === 'barbeiro');
+    document.getElementById('admin-field').style.display = t === 'barbeiro' ? 'block' : 'none';
+  }
+
+  setTipo(tipoAtual);
+
+  async function cadastrar() {
+    const nome = document.getElementById('nome').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const senha = document.getElementById('senha').value;
+    const senhaAdmin = document.getElementById('senha-admin').value;
+    const erro = document.getElementById('erro');
+    erro.style.display = 'none';
+
+    if (!nome || !email || !senha) {
+      erro.textContent = 'Preencha todos os campos.';
+      erro.style.display = 'block';
+      return;
+    }
+    if (senha.length < 6) {
+      erro.textContent = 'Senha deve ter ao menos 6 caracteres.';
+      erro.style.display = 'block';
+      return;
+    }
+
+    const res = await fetch('/api/cadastro', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tipo: tipoAtual, nome, email, senha, senha_admin: senhaAdmin })
+    });
+    const json = await res.json();
+
+    if (!json.ok) {
+      erro.textContent = json.erro || 'Erro ao cadastrar.';
+      erro.style.display = 'block';
+    } else {
+      window.location.href = json.redirect;
+    }
+  }
+</script>
+</body>
+</html>

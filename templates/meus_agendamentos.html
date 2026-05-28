@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Barber. — Meus Agendamentos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+</head>
+<body>
+<div class="wrap wrap--sm">
+  <div class="header header--flat">
+    <div class="logo">Barber<span>.</span></div>
+    <div class="nav-links">
+      <a href="/">Agendar</a>
+      <a href="/meus-agendamentos" class="active">Meus horários</a>
+      <a href="/logout">Sair</a>
+    </div>
+  </div>
+
+  <h1>Olá, {{ nome_cliente.split()[0] }}!</h1>
+  <div class="sub">Seus agendamentos na barbearia</div>
+
+  <div class="sec-title--sm">Próximos</div>
+  {% if futuros %}
+    {% for ag in futuros %}
+    <div class="ag-card futuro">
+      <div class="ag-info">
+        <div class="ag-servico">{{ ag.servico }}</div>
+        <div class="ag-det">com {{ ag.barbeiro }} · R$ {{ "%.2f"|format(ag.preco)|replace('.', ',') }}</div>
+      </div>
+      <div class="ag-right">
+        <div class="ag-data">{{ ag.data.strftime('%d/%m/%Y') }}</div>
+        <div class="ag-hora">{{ ag.horario }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty">Nenhum agendamento futuro.</div>
+  {% endif %}
+
+  <div class="sec-title--sm">Histórico</div>
+  {% if passados %}
+    {% for ag in passados %}
+    <div class="ag-card passado">
+      <div class="ag-info">
+        <div class="ag-servico">{{ ag.servico }}</div>
+        <div class="ag-det">com {{ ag.barbeiro }} · R$ {{ "%.2f"|format(ag.preco)|replace('.', ',') }}</div>
+      </div>
+      <div class="ag-right">
+        <div class="ag-data">{{ ag.data.strftime('%d/%m/%Y') }}</div>
+        <div class="ag-hora">{{ ag.horario }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty">Nenhum histórico ainda.</div>
+  {% endif %}
+
+  <a href="/" class="btn-novo">+ Novo agendamento</a>
+</div>
+</body>
+</html>

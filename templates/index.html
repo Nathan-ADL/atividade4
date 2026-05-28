@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Barbearia — Agendamento</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+
+<body>
+  <h2 style="position: absolute; left: -9999px">Barbearia — agendamento de serviços</h2>
+
+  <div class="wrap">
+    <!-- HEADER -->
+    <div class="header">
+      <div>
+        <div class="logo">Barber<span>.</span></div>
+        <div class="tagline">São José dos Campos</div>
+      </div>
+      <div style="display:flex;gap:16px;align-items:center">
+        <a href="/meus-agendamentos" style="color:#888;text-decoration:none;font-size:13px">Meus horários</a>
+        <a href="/logout" style="color:#888;text-decoration:none;font-size:13px">Sair</a>
+      </div>
+    </div>
+
+    <!-- STEPS -->
+    <div class="steps">
+      <div class="step active" id="nav1">
+        <div class="step-n">1</div>
+        <div class="step-lbl">Serviço</div>
+      </div>
+      <div class="step" id="nav2">
+        <div class="step-n">2</div>
+        <div class="step-lbl">Barbeiro</div>
+      </div>
+      <div class="step" id="nav3">
+        <div class="step-n">3</div>
+        <div class="step-lbl">Data</div>
+      </div>
+      <div class="step" id="nav4">
+        <div class="step-n">4</div>
+        <div class="step-lbl">Dados</div>
+      </div>
+    </div>
+
+    <!-- PAINEL 1 — SERVIÇO -->
+    <div class="panel active" id="p1">
+      <p class="sec-title">Selecione o serviço</p>
+      <div class="srv-list" id="srv-list"></div>
+      <div class="btn-row">
+        <button class="btn btn-pri" id="b1n" disabled onclick="go(2)">Continuar</button>
+      </div>
+    </div>
+
+    <!-- PAINEL 2 — BARBEIRO -->
+    <div class="panel" id="p2">
+      <p class="sec-title">Escolha o barbeiro</p>
+      <div class="bar-list" id="bar-list"></div>
+      <div class="btn-row">
+        <button class="btn btn-sec" onclick="go(1)">Voltar</button>
+        <button class="btn btn-pri" id="b2n" disabled onclick="go(3)">Continuar</button>
+      </div>
+    </div>
+
+    <!-- PAINEL 3 — DATA E HORÁRIO -->
+    <div class="panel" id="p3">
+      <p class="sec-title">Escolha a data e horário</p>
+      <p class="bar-subtitle" id="bar-subtitle"
+        style="text-align:center;color:#888;margin-top:-8px;margin-bottom:8px;font-size:14px"></p>
+      <div class="cal-head">
+        <button class="cal-btn" onclick="cm(-1)">&#8592;</button>
+        <span class="cal-lbl" id="cml"></span>
+        <button class="cal-btn" onclick="cm(1)">&#8594;</button>
+      </div>
+      <div class="dgrid" id="dgrid"></div>
+
+      <div id="tsec" style="display:none">
+        <p class="times-lbl" id="tlbl">Horários disponíveis</p>
+        <div class="tgrid" id="tgrid"></div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-sec" onclick="go(2)">Voltar</button>
+        <button class="btn btn-pri" id="b3n" disabled onclick="go(4)">Continuar</button>
+      </div>
+    </div>
+
+    <!-- PAINEL 4 — CONFIRMAÇÃO -->
+    <div class="panel" id="p4">
+      <p class="sec-title">Confirme o agendamento</p>
+      <div class="summary" id="sumbox"></div>
+      <div class="fgrid">
+        <div class="fg full">
+          <label class="flbl">Observações <span style="color:#666;font-size:11px">(opcional)</span></label>
+          <textarea class="fi" rows="2" placeholder="Alguma preferência..." id="fo"></textarea>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-sec" onclick="go(3)">Voltar</button>
+        <button class="btn btn-pri" id="btnAgendar" onclick="confirm_()">Agendar</button>
+      </div>
+    </div>
+
+    <!-- PAINEL 5 — SUCESSO -->
+    <div class="panel" id="p5">
+      <div class="ok">
+        <div class="ok-icon">
+          <i class="ti ti-check" aria-hidden="true"></i>
+        </div>
+        <div class="ok-title">Agendamento confirmado!</div>
+        <div class="ok-sub" id="okmsg"></div>
+        <div style="display:flex;gap:12px;margin-top:1.5rem;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-sec" onclick="reset_()">Novo agendamento</button>
+          <a href="/meus-agendamentos" class="btn btn-pri"
+            style="text-decoration:none;display:inline-flex;align-items:center">Ver meus horários</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // 1. DADOS DO SERVIDOR
+    // ==========================================
+
+    const NOME_CLIENTE = '{{ nome_cliente }}';
+
+    const SVCS = [
+      {% for servico in servicos %}
+      {
+        id: 'c' + '{{ servico.id }}',
+        name: '{{ servico.nome }}',
+        meta: '{{ servico.descricao }}',
+        price: parseFloat('{{ servico.preco }}'),
+        duracao: parseInt('{{ servico.duracao_min }}')
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    const BRBRS = [
+      {% for barbeiro in barbeiros %}
+      {
+        id: 'b' + '{{ barbeiro.id }}',
+        ini: '{{ barbeiro.nome.split()[0][0] if barbeiro.nome.split() else "" }}{{ barbeiro.nome.split()[1][0] if barbeiro.nome.split()|length > 1 else "" }}',
+        name: '{{ barbeiro.nome }}',
+        spec: '{{ barbeiro.especialidade or "" }}'
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    const DISPO = [
+      {% for d in disponibilidade %}
+      {
+        barbeiroId: parseInt('{{ d.barbeiro_id }}'),
+        diaSemana: parseInt('{{ d.dia_semana }}'),
+        inicio: {% if d.hora_inicio %}'{{ d.hora_inicio }}'{% else %}null{% endif %},
+        fim: {% if d.hora_fim %}'{{ d.hora_fim }}'{% else %}null{% endif %}
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    const OCUPADOS = [
+      {% for a in agendamentos %}
+      {
+        barbeiroId: parseInt('{{ a.barbeiro_id }}'),
+        data: '{{ a.data }}',
+        horario: '{{ a.horario }}',
+        servico_ids: {{ a.servico_ids | tojson if a.servico_ids else '[]' }}
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    const MNS = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+    const DLS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+    const dataAtual = new Date();
+    let S = {
+      srvs: [],
+      barber: null,
+      date: null,
+      time: null,
+      yr: dataAtual.getFullYear(),
+      mo: dataAtual.getMonth()
+    };
+
+    // ==========================================
+    // 2. NAVEGAÇÃO
+    // ==========================================
+
+    function obterDiaPadrao(jsDay) {
+      return jsDay === 0 ? 7 : jsDay;
+    }
+
+    function go(n) {
+      for (let i = 1; i <= 5; i++) {
+        document.getElementById('p' + i).classList.remove('active');
+        const v = document.getElementById('nav' + i);
+        if (v) v.classList.remove('active', 'done');
+      }
+      document.getElementById('p' + n).classList.add('active');
+      for (let i = 1; i < n; i++) {
+        const v = document.getElementById('nav' + i);
+        if (v) v.classList.add('done');
+      }
+      const cur = document.getElementById('nav' + n);
+      if (cur) cur.classList.add('active');
+
+      if (n === 3) {
+        buildCal();
+        const bar = BRBRS.find(b => b.id === S.barber);
+        const sub = document.getElementById('bar-subtitle');
+        if (sub && bar) sub.textContent = 'com ' + bar.name;
+      }
+      if (n === 4) buildSum();
+    }
+
+    // ==========================================
+    // 3. RENDERIZAÇÃO DOS PAINÉIS
+    // ==========================================
+
+    function buildSrvs() {
+      document.getElementById('srv-list').innerHTML = SVCS.map(s => `
+        <div class="srv-item${S.srvs.includes(s.id) ? ' sel' : ''}" id="si-${s.id}" onclick="togSrv('${s.id}')">
+          <div class="srv-left">
+            <div class="srv-name">${s.name}</div>
+            <div class="srv-meta">${s.meta}</div>
+          </div>
+          <div class="srv-right">
+            <div class="srv-price">R$ ${s.price.toFixed(2).replace('.', ',')}</div>
+            <div class="srv-check">${S.srvs.includes(s.id) ? '<i class="ti ti-check" style="font-size:12px" aria-hidden="true"></i>' : ''}</div>
+          </div>
+        </div>`).join('');
+    }
+
+    function togSrv(id) {
+      const i = S.srvs.indexOf(id);
+      if (i > -1) S.srvs.splice(i, 1); else S.srvs.push(id);
+      buildSrvs();
+      document.getElementById('b1n').disabled = S.srvs.length === 0;
+    }
+
+    function buildBars() {
+      document.getElementById('bar-list').innerHTML = BRBRS.map(b => `
+        <div class="bar-card${S.barber === b.id ? ' sel' : ''}" onclick="selBar('${b.id}')">
+          <div class="bar-av">${b.ini}</div>
+          <div class="bar-name">${b.name}</div>
+          <div class="bar-spec">${b.spec}</div>
+        </div>`).join('');
+    }
+
+    function selBar(id) {
+      S.barber = id;
+      buildBars();
+      document.getElementById('b2n').disabled = false;
+    }
+
+    function buildCal() {
+      
+      document.getElementById('cml').textContent = MNS[S.mo] + ' ' + S.yr;
+      const g = document.getElementById('dgrid');
+      g.innerHTML = DLS.map(d => `<div class="dlbl">${d}</div>`).join('');
+      const fd = new Date(S.yr, S.mo, 1).getDay();
+      const dim = new Date(S.yr, S.mo + 1, 0).getDate();
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+
+      for (let i = 0; i < fd; i++) g.innerHTML += `<div class="dcell empty"></div>`;
+
+      for (let d = 1; d <= dim; d++) {
+        const dt = new Date(S.yr, S.mo, d);
+        const past = dt < today;
+        const isSun = dt.getDay() === 0;
+        const isTod = dt.toDateString() === today.toDateString();
+        const isSel = S.date && S.date.toDateString() === dt.toDateString();
+
+        let barbeiroIndisponivel = true;
+        if (S.barber) {
+          const idBarbeiroPuro = parseInt(S.barber.replace('b', ''));
+          const diaDaSemanaBanco = obterDiaPadrao(dt.getDay());
+          const regraDispo = DISPO.find(r =>
+            r.barbeiroId === idBarbeiroPuro &&
+            r.diaSemana === diaDaSemanaBanco
+          );
+          if (regraDispo && regraDispo.inicio !== null && regraDispo.fim !== null) {
+            barbeiroIndisponivel = false;
+          }
+        }
+
+        let cls = 'dcell';
+        if (past || isSun || barbeiroIndisponivel) cls += ' past';
+        else if (isTod) cls += ' today';
+        if (isSel) cls += ' sel';
+
+        const fn = (past || isSun || barbeiroIndisponivel) ? '' : `onclick="selDate(${S.yr},${S.mo},${d})"`;
+        g.innerHTML += `<div class="${cls}" ${fn}>${d}</div>`;
+      }
+    }
+
+    function cm(d) {
+      S.mo += d;
+      if (S.mo > 11) { S.mo = 0; S.yr++; }
+      if (S.mo < 0) { S.mo = 11; S.yr--; }
+      S.date = null; S.time = null;
+      document.getElementById('tsec').style.display = 'none';
+      document.getElementById('b3n').disabled = true;
+      buildCal();
+    }
+
+    function selDate(y, m, d) {
+      S.date = new Date(y, m, d);
+      S.time = null;
+      document.getElementById('b3n').disabled = true;
+      buildCal();
+      buildTimes();
+      document.getElementById('tsec').style.display = 'block';
+      document.getElementById('tlbl').textContent = 'Horários para ' + d + ' de ' + MNS[m];
+    }
+
+    function buildTimes() {
+      if (!S.barber || !S.date) return;
+
+      const idBarbeiroPuro = parseInt(S.barber.replace('b', ''));
+      const diaDaSemanaBanco = obterDiaPadrao(S.date.getDay());
+
+      const regra = DISPO.find(r =>
+        r.barbeiroId === idBarbeiroPuro &&
+        r.diaSemana === diaDaSemanaBanco
+      );
+
+      if (!regra || !regra.inicio || !regra.fim) {
+        document.getElementById('tgrid').innerHTML =
+          '<p style="color:#888;font-size:13px;text-align:center;padding:16px 0">Sem disponibilidade neste dia.</p>';
+        return;
+      }
+
+      const hInicio = regra.inicio;
+      const hFim = regra.fim;
+
+      const slots = [];
+      let [hAtual, mAtual] = hInicio.split(':').map(Number);
+      const [hFimNum, mFimNum] = hFim.split(':').map(Number);
+
+      while (hAtual < hFimNum || (hAtual === hFimNum && mAtual < mFimNum)) {
+        slots.push(String(hAtual).padStart(2, '0') + ':' + String(mAtual).padStart(2, '0'));
+        mAtual += 30;
+        if (mAtual >= 60) { mAtual = 0; hAtual += 1; }
+      }
+
+      const ano = S.date.getFullYear();
+      const mes = String(S.date.getMonth() + 1).padStart(2, '0');
+      const dia = String(S.date.getDate()).padStart(2, '0');
+      const dataFormatadaJS = `${ano}-${mes}-${dia}`;
+
+      const duracaoSelecionada = S.srvs.reduce((total, sid) => {
+        const srv = SVCS.find(s => s.id === sid);
+        return total + (srv ? srv.duracao : 30);
+      }, 0);
+
+      document.getElementById('tgrid').innerHTML = slots.map(t => {
+        const [hT, mT] = t.split(':').map(Number);
+        const minT = hT * 60 + mT;
+
+        const jaReservado = OCUPADOS.some(o => {
+          if (o.barbeiroId !== idBarbeiroPuro || o.data !== dataFormatadaJS) return false;
+          const [hO, mO] = o.horario.substring(0, 5).split(':').map(Number);
+          const minO = hO * 60 + mO;
+          const ids = Array.isArray(o.servico_ids) ? o.servico_ids : (o.servico_id ? [o.servico_id] : []);
+          const duracaoOcupado = ids.reduce((total, sid) => {
+            const srv = SVCS.find(s => s.id === 'c' + String(sid));
+            return total + (srv ? srv.duracao : 30);
+          }, 0);
+          return minT >= minO && minT < minO + duracaoOcupado;
+        });
+
+        const [hFimN, mFimN] = hFim.split(':').map(Number);
+        const minFim = hFimN * 60 + mFimN;
+        const naoCoube = (minT + duracaoSelecionada) > minFim;
+
+        const bloqueado = jaReservado || naoCoube;
+        const sel = S.time === t;
+        let cls = 'tslot';
+        if (bloqueado) cls += ' off';
+        if (sel) cls += ' sel';
+
+        return `<div class="${cls}"${bloqueado ? '' : ` onclick="selTime('${t}')"`}>${t}${jaReservado ? '<br><span style="font-size:10px">ocupado</span>' : naoCoube ? '<br><span style="font-size:10px">sem tempo</span>' : ''}</div>`;
+      }).join('');
+    }
+
+    function selTime(t) {
+      S.time = t;
+      buildTimes();
+      document.getElementById('b3n').disabled = false;
+    }
+
+    function buildSum() {
+      const srvs = S.srvs.map(id => SVCS.find(s => s.id === id));
+      const bar = BRBRS.find(b => b.id === S.barber);
+      const tot = srvs.reduce((a, s) => a + s.price, 0);
+      const duracaoTotal = srvs.reduce((a, s) => a + s.duracao, 0);
+      const dstr = S.date ? S.date.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }) : '';
+      document.getElementById('sumbox').innerHTML = `
+        <div class="sum-row"><span class="sum-k">Serviço</span><span class="sum-v">${srvs.map(s => s.name).join(', ')} · ${duracaoTotal} min</span></div>
+        <div class="sum-row"><span class="sum-k">Barbeiro</span><span class="sum-v">${bar ? bar.name : ''}</span></div>
+        <div class="sum-row"><span class="sum-k">Data</span><span class="sum-v" style="text-transform:capitalize">${dstr}</span></div>
+        <div class="sum-row"><span class="sum-k">Horário</span><span class="sum-v">${S.time || ''}</span></div>
+        <div class="sum-tot"><span class="tot-lbl">Total</span><span class="tot-val">R$ ${tot.toFixed(2).replace('.', ',')}</span></div>`;
+    }
+
+    // ==========================================
+    // 4. CONFIRMAR AGENDAMENTO
+    // ==========================================
+
+    async function confirm_() {
+      const bar = BRBRS.find(b => b.id === S.barber);
+
+      const ano = S.date.getFullYear();
+      const mes = String(S.date.getMonth() + 1).padStart(2, '0');
+      const dia = String(S.date.getDate()).padStart(2, '0');
+
+      const payload = {
+        nome: NOME_CLIENTE,
+        telefone: '',
+        barbeiro_id: parseInt(S.barber.replace('b', '')),
+        servico_id: parseInt(S.srvs[0].replace('c', '')),
+        servico_ids: S.srvs.map(id => parseInt(id.replace('c', ''))),
+        data: `${ano}-${mes}-${dia}`,
+        horario: S.time
+      };
+
+      try {
+        document.getElementById('btnAgendar').disabled = true;
+        const res = await fetch('/agendar', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (!json.ok) throw new Error(json.erro || 'Erro desconhecido');
+
+        OCUPADOS.push({
+          barbeiroId: parseInt(S.barber.replace('b', '')),
+          servico_ids: S.srvs.map(id => parseInt(id.replace('c', ''))),
+          data: payload.data,
+          horario: S.time
+        });
+
+        const dstr = S.date.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+        document.getElementById('okmsg').innerHTML =
+          `Olá, <strong>${NOME_CLIENTE.split(' ')[0]}</strong>!<br>Seu horário com <strong>${bar.name}</strong> está confirmado<br>` +
+          `para <strong style="color:#cc1111">${dstr} às ${S.time}</strong>.`;
+
+        for (let i = 1; i <= 4; i++) {
+          document.getElementById('p' + i).classList.remove('active');
+          const v = document.getElementById('nav' + i);
+          if (v) v.classList.remove('active', 'done');
+        }
+        document.getElementById('p5').classList.add('active');
+
+      } catch (err) {
+        alert('Não foi possível confirmar o agendamento: ' + err.message);
+        document.getElementById('btnAgendar').disabled = false;
+      }
+    }
+
+    // ==========================================
+    // 5. RESET
+    // ==========================================
+
+    function reset_() {
+      const dAtual = new Date();
+      S = {
+        srvs: [],
+        barber: null,
+        date: null,
+        time: null,
+        yr: dAtual.getFullYear(),
+        mo: dAtual.getMonth()
+      };
+      document.getElementById('fo').value = '';
+      document.getElementById('tsec').style.display = 'none';
+      document.getElementById('b1n').disabled = true;
+      document.getElementById('b2n').disabled = true;
+      document.getElementById('b3n').disabled = true;
+      document.getElementById('btnAgendar').disabled = false;
+      document.getElementById('p5').classList.remove('active');
+      buildSrvs();
+      buildBars();
+      go(1);
+    }
+
+    // ==========================================
+    // 6. INIT
+    // ==========================================
+    buildSrvs();
+    buildBars();
+  </script>
+</body>
+
+</html>

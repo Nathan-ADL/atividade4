@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Barber. — Entrar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+</head>
+<body class="page-centered">
+  <div class="container">
+    <div class="logo logo--lg">Barber<span>.</span></div>
+    <div class="tagline--center">São José dos Campos</div>
+
+    <div class="tipo-sel">
+      <button class="tipo-btn active" id="btn-cliente" onclick="setTipo('cliente')">
+        <span class="icon">👤</span> Cliente
+      </button>
+      <button class="tipo-btn" id="btn-barbeiro" onclick="setTipo('barbeiro')">
+        <span class="icon">✂️</span> Barbeiro
+      </button>
+    </div>
+
+    <div class="card">
+      <div class="erro-msg--top" id="erro"></div>
+
+      <div class="field">
+        <label>Email</label>
+        <input type="email" id="email" placeholder="seu@email.com" />
+      </div>
+      <div class="field">
+        <label>Senha</label>
+        <input type="password" id="senha" placeholder="••••••••" />
+      </div>
+
+      <button class="btn-main" id="btn-entrar" onclick="entrar()">Entrar</button>
+    </div>
+
+    <div class="footer-link" id="link-cadastro">
+      Não tem conta? <a href="/cadastro?tipo=cliente">Criar conta</a>
+    </div>
+  </div>
+
+  <script>
+    let tipoAtual = 'cliente';
+
+    function setTipo(t) {
+      tipoAtual = t;
+      document.getElementById('btn-cliente').classList.toggle('active', t === 'cliente');
+      document.getElementById('btn-barbeiro').classList.toggle('active', t === 'barbeiro');
+      document.getElementById('link-cadastro').innerHTML =
+        `Não tem conta? <a href="/cadastro?tipo=${t}">Criar conta</a>`;
+    }
+
+    setTipo('cliente');
+
+    document.addEventListener('keydown', e => { if (e.key === 'Enter') entrar(); });
+
+    async function entrar() {
+      const email = document.getElementById('email').value.trim();
+      const senha = document.getElementById('senha').value;
+      const erro = document.getElementById('erro');
+      erro.style.display = 'none';
+
+      if (!email || !senha) {
+        erro.textContent = 'Preencha email e senha.';
+        erro.style.display = 'block';
+        return;
+      }
+
+      const btn = document.getElementById('btn-entrar');
+      btn.disabled = true;
+      btn.textContent = 'Entrando...';
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tipo: tipoAtual, email, senha })
+        });
+        const json = await res.json();
+
+        if (!json.ok) {
+          erro.textContent = json.erro || 'Erro ao entrar.';
+          erro.style.display = 'block';
+        } else {
+          window.location.href = json.redirect;
+        }
+      } catch (e) {
+        erro.textContent = 'Erro de conexão.';
+        erro.style.display = 'block';
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Entrar';
+    }
+  </script>
+</body>
+</html>
