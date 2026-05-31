@@ -5,7 +5,7 @@ import hashlib
 from database import obter_conexao
 
 app = Flask(__name__)
-app.secret_key = "barbearia_secret_key_2024"
+app.secret_key = "barbearia_secret_key_2026"
 
 SENHA_ADMIN = "barber@admin123"
 
