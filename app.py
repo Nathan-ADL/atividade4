@@ -18,7 +18,8 @@ def fmt_time(t):
         h = total // 3600
         m = (total % 3600) // 60
         return f"{h:02d}:{m:02d}"
-    return str(t)[:5]
+    s = str(t)[:5].strip()
+    return None if s == '' else s
 
 
 def hash_senha(senha):
@@ -600,6 +601,7 @@ def api_agenda_get(barbeiro_id):
         conexao = obter_conexao()
         cursor = conexao.cursor(dictionary=True)
 
+        # Padrão semanal
         cursor.execute(
             "SELECT dia_semana, hora_inicio, hora_fim FROM disponibilidade WHERE barbeiro_id=%s",
             (barbeiro_id,)
@@ -612,24 +614,24 @@ def api_agenda_get(barbeiro_id):
             }
 
         excecoes = {}
-        if mes:
-            cursor.execute(
-                "SELECT data, hora_inicio, hora_fim FROM disponibilidade_excecao "
-                "WHERE barbeiro_id=%s AND DATE_FORMAT(data, '%%Y-%%m') = %s",
-                (barbeiro_id, mes)
-            )
-            for r in cursor.fetchall():
-                excecoes[r["data"].strftime("%Y-%m-%d")] = {
-                    "hora_inicio": fmt_time(r["hora_inicio"]),
-                    "hora_fim":    fmt_time(r["hora_fim"])
-                }
-
         agendados = []
         if mes:
+            ano, mo = mes.split('-')
+
+            cursor.execute(
+                "SELECT data, hora_inicio, hora_fim FROM disponibilidade_excecao "
+                "WHERE barbeiro_id=%s AND YEAR(data)=%s AND MONTH(data)=%s",
+                (barbeiro_id, ano, mo)
+            )
+            for r in cursor.fetchall():
+                hi = fmt_time(r["hora_inicio"])
+                hf = fmt_time(r["hora_fim"])
+                excecoes[r["data"].strftime("%Y-%m-%d")] = None if hi is None else {"hora_inicio": hi, "hora_fim": hf}
+
             cursor.execute(
                 "SELECT DISTINCT data FROM agendamento "
-                "WHERE barbeiro_id=%s AND DATE_FORMAT(data, '%%Y-%%m') = %s",
-                (barbeiro_id, mes)
+                "WHERE barbeiro_id=%s AND YEAR(data)=%s AND MONTH(data)=%s",
+                (barbeiro_id, ano, mo)
             )
             agendados = [r["data"].strftime("%Y-%m-%d") for r in cursor.fetchall()]
 
@@ -637,8 +639,9 @@ def api_agenda_get(barbeiro_id):
         conexao.close()
         return jsonify({"ok": True, "padrao": padrao, "excecoes": excecoes, "agendados": agendados})
     except Exception as e:
+        print(f"ERRO api_agenda_get: {e}")
+        import traceback; traceback.print_exc()
         return jsonify({"ok": False, "erro": str(e)}), 500
-
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -1,58 +1,59 @@
 <!doctype html>
 <html lang="pt-BR">
+
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Barber. — Painel</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 </head>
+
 <body>
-<div class="wrap wrap--md">
-  <div class="header header--flat">
-    <div class="logo logo--lg">Barbearia <span>NL</span></div>
-    <div class="nav-links"><a href="/logout">Sair</a></div>
-  </div>
+  <div class="wrap wrap--md">
+    <div class="header header--flat">
+      <div class="logo logo--lg">Barbearia <span>NL</span></div>
+      <div class="nav-links"><a href="/logout">Sair</a></div>
+    </div>
 
-  <h1>Olá, {{ nome_barbeiro }}!</h1>
-  <div class="sub">Painel do barbeiro</div>
+    <h1>Olá, {{ nome_barbeiro }}!</h1>
+    <div class="sub">Painel do barbeiro</div>
 
-  <div class="tabs">
-    <button class="tab active" onclick="setTab('agendamentos')">Agendamentos</button>
-    <button class="tab" onclick="setTab('servicos')">Serviços</button>
-    <button class="tab" onclick="setTab('agenda'); initAgenda()">Agenda</button>
-  </div>
+    <div class="tabs">
+      <button class="tab active" onclick="setTab('agendamentos')">Agendamentos</button>
+      <button class="tab" onclick="setTab('servicos')">Serviços</button>
+      <button class="tab" onclick="setTab('agenda'); initAgenda()">Agenda</button>
+    </div>
 
-  <!-- ── TAB AGENDAMENTOS ── -->
-  <div class="tab-panel active" id="tab-agendamentos">
-    <div class="sec-title--sm">Próximos</div>
-    {% if futuros %}
+    <!-- ── TAB AGENDAMENTOS ── -->
+    <div class="tab-panel active" id="tab-agendamentos">
+      <div class="sec-title--sm">Próximos</div>
+      {% if futuros %}
       {% for ag in futuros %}
       <div class="ag-card futuro" id="ag-{{ ag.id }}">
         <div class="ag-info">
           <div class="ag-servico">{{ ag.servico }}</div>
-          <div class="ag-det">{{ ag.cliente }} · R$ {{ "%.2f"|format(ag.preco)|replace('.', ',') }} · {{ ag.duracao_min }} min</div>
+          <div class="ag-det">{{ ag.cliente }} · R$ {{ "%.2f"|format(ag.preco)|replace('.', ',') }} · {{ ag.duracao_min
+            }} min</div>
         </div>
         <div class="ag-right">
           <div class="ag-data">{{ ag.data.strftime('%d/%m/%Y') }}</div>
           <div class="ag-hora">{{ ag.horario }}</div>
-          <button class="btn-cancelar"
-            data-id="{{ ag.id }}"
-            data-cliente="{{ ag.cliente }}"
-            data-servico="{{ ag.servico }}"
-            data-horario="{{ ag.horario }}"
-            data-data="{{ ag.data.strftime('%d/%m/%Y') }}"
-            onclick="abrirModalCancelar(this)">Cancelar</button>
+          <button class="btn-cancelar" data-id="{{ ag.id }}" data-cliente="{{ ag.cliente }}"
+            data-servico="{{ ag.servico }}" data-horario="{{ ag.horario }}"
+            data-data="{{ ag.data.strftime('%d/%m/%Y') }}" onclick="abrirModalCancelar(this)">Cancelar</button>
         </div>
       </div>
       {% endfor %}
-    {% else %}
+      {% else %}
       <div class="empty">Nenhum agendamento futuro.</div>
-    {% endif %}
+      {% endif %}
 
-    <div class="sec-title--sm">Histórico</div>
-    {% if passados %}
+      <div class="sec-title--sm">Histórico</div>
+      {% if passados %}
       {% for ag in passados %}
       <div class="ag-card passado">
         <div class="ag-info">
@@ -65,230 +66,245 @@
         </div>
       </div>
       {% endfor %}
-    {% else %}
-      <div class="empty">Nenhum histórico ainda.</div>
-    {% endif %}
-  </div>
-
-  <!-- ── TAB SERVIÇOS ── -->
-  <div class="tab-panel" id="tab-servicos">
-    <div class="sec-title--sm">Serviços cadastrados</div>
-    <div class="srv-grid" id="srv-grid">
-      {% for s in servicos %}
-      <div class="srv-row" id="srv-{{ s.id }}">
-        <div>
-          <div class="srv-nome">{{ s.nome }}</div>
-          <div class="srv-desc">{{ s.descricao }}</div>
-        </div>
-        <div class="srv-badges">
-          <span class="badge">{{ s.duracao_min }} min</span>
-          <span class="badge preco">R$ {{ "%.2f"|format(s.preco)|replace('.', ',') }}</span>
-          <button class="btn-del" onclick="deletarServico({{ s.id }})">Remover</button>
-        </div>
-      </div>
       {% else %}
-      <div class="empty" id="empty-srv">Nenhum serviço cadastrado.</div>
-      {% endfor %}
+      <div class="empty">Nenhum histórico ainda.</div>
+      {% endif %}
     </div>
 
-    <div class="form-card">
-      <div class="form-title">Adicionar serviço</div>
-      <div class="fgrid--painel">
-        <div class="fg"><label>Nome *</label><input type="text" id="s-nome" placeholder="Ex: Corte degradê"/></div>
-        <div class="fg"><label>Preço (R$) *</label><input type="number" id="s-preco" placeholder="45.00" step="0.01" min="0"/></div>
-        <div class="fg"><label>Duração (min) *</label><input type="number" id="s-duracao" placeholder="30" min="5" step="5"/></div>
-        <div class="fg"><label>Descrição</label><input type="text" id="s-desc" placeholder="Breve descrição..."/></div>
-      </div>
-      <button class="btn-add" onclick="adicionarServico()">Adicionar serviço</button>
-      <div class="ok-msg" id="ok-srv">Serviço adicionado com sucesso!</div>
-      <div class="erro-msg" id="erro-srv"></div>
-    </div>
-  </div>
-
-  <!-- ── TAB AGENDA ── -->
-  <div class="tab-panel" id="tab-agenda">
-    <div class="agenda-layout">
-
-      <!-- Padrão semanal -->
-      <div class="padrao-card">
-        <div class="form-title">Padrão semanal</div>
-        <div id="dias-padrao"></div>
-        <button class="btn-salvar-padrao" onclick="salvarPadrao()">Salvar padrão</button>
-        <div class="feedback-bar" id="fb-padrao"></div>
-      </div>
-
-      <!-- Calendário de exceções -->
-      <div class="cal-card">
-        <div class="form-title">Exceções por dia</div>
-
-        <div class="legenda">
-          <div class="leg-item"><div class="leg-dot excecao-h"></div>Horário diferente</div>
-          <div class="leg-item"><div class="leg-dot excecao-f"></div>Folga</div>
-          <div class="leg-item"><div class="leg-dot agend"></div>Com agendamento</div>
-        </div>
-
-        <div class="sel-mode-bar" onclick="toggleSelMode()">
-          <input type="checkbox" id="chk-sel-mode" onclick="event.stopPropagation(); toggleSelMode()"/>
-          <label for="chk-sel-mode">Selecionar múltiplos dias</label>
-          <span class="sel-count" id="sel-count"></span>
-        </div>
-
-        <div class="cal-nav">
-          <button class="cal-nav-btn" onclick="calMes(-1)">&#8592;</button>
-          <span class="cal-mes-lbl" id="cal-mes-lbl"></span>
-          <button class="cal-nav-btn" onclick="calMes(1)">&#8594;</button>
-        </div>
-        <div class="cal-grid" id="cal-grid"></div>
-
-        <div class="edit-panel" id="edit-panel" style="display:none">
-          <div class="edit-panel-title" id="edit-panel-title">Configurar dia</div>
-          <div class="edit-tipo">
-            <div class="tipo-opt" id="opt-horario" onclick="setTipoEdit('horario')">✎ Horário diferente</div>
-            <div class="tipo-opt" id="opt-folga" onclick="setTipoEdit('folga')">✕ Folga / Fechado</div>
+    <!-- ── TAB SERVIÇOS ── -->
+    <div class="tab-panel" id="tab-servicos">
+      <div class="sec-title--sm">Serviços cadastrados</div>
+      <div class="srv-grid" id="srv-grid">
+        {% for s in servicos %}
+        <div class="srv-row" id="srv-{{ s.id }}">
+          <div>
+            <div class="srv-nome">{{ s.nome }}</div>
+            <div class="srv-desc">{{ s.descricao }}</div>
           </div>
-          <div id="edit-times-wrap">
-            <div class="edit-times">
-              <input type="time" id="et-inicio" value="08:00"/>
-              <span class="sep">até</span>
-              <input type="time" id="et-fim" value="18:00"/>
+          <div class="srv-badges">
+            <span class="badge">{{ s.duracao_min }} min</span>
+            <span class="badge preco">R$ {{ "%.2f"|format(s.preco)|replace('.', ',') }}</span>
+            <button class="btn-del" onclick="deletarServico({{ s.id }})">Remover</button>
+          </div>
+        </div>
+        {% else %}
+        <div class="empty" id="empty-srv">Nenhum serviço cadastrado.</div>
+        {% endfor %}
+      </div>
+
+      <div class="form-card">
+        <div class="form-title">Adicionar serviço</div>
+        <div class="fgrid--painel">
+          <div class="fg"><label>Nome *</label><input type="text" id="s-nome" placeholder="Ex: Corte degradê" /></div>
+          <div class="fg"><label>Preço (R$) *</label><input type="number" id="s-preco" placeholder="45.00" step="0.01"
+              min="0" /></div>
+          <div class="fg"><label>Duração (min) *</label><input type="number" id="s-duracao" placeholder="30" min="5"
+              step="5" /></div>
+          <div class="fg"><label>Descrição</label><input type="text" id="s-desc" placeholder="Breve descrição..." />
+          </div>
+        </div>
+        <button class="btn-add" onclick="adicionarServico()">Adicionar serviço</button>
+        <div class="ok-msg" id="ok-srv">Serviço adicionado com sucesso!</div>
+        <div class="erro-msg" id="erro-srv"></div>
+      </div>
+    </div>
+
+    <!-- ── TAB AGENDA ── -->
+    <div class="tab-panel" id="tab-agenda">
+      <div class="agenda-layout">
+
+        <!-- Padrão semanal -->
+        <div class="padrao-card">
+          <div class="form-title">Padrão semanal</div>
+          <div id="dias-padrao"></div>
+          <button class="btn-salvar-padrao" onclick="salvarPadrao()">Salvar padrão</button>
+          <div class="feedback-bar" id="fb-padrao"></div>
+        </div>
+
+        <!-- Calendário de exceções -->
+        <div class="cal-card">
+          <div class="form-title">Exceções por dia</div>
+
+          <div class="legenda">
+            <div class="leg-item">
+              <div class="leg-dot excecao-h"></div>Horário diferente
+            </div>
+            <div class="leg-item">
+              <div class="leg-dot excecao-f"></div>Folga
+            </div>
+            <div class="leg-item">
+              <div class="leg-dot agend"></div>Com agendamento
             </div>
           </div>
-          <div class="edit-btns">
-            <button class="btn-aplicar aplicar" onclick="aplicarExcecao()">Aplicar</button>
-            <button class="btn-aplicar limpar" onclick="removerExcecao()">Remover exceção</button>
+
+          <div class="sel-mode-bar" onclick="toggleSelMode()">
+            <input type="checkbox" id="chk-sel-mode" onclick="event.stopPropagation(); toggleSelMode()" />
+            <label for="chk-sel-mode">Selecionar múltiplos dias</label>
+            <span class="sel-count" id="sel-count"></span>
           </div>
-          <div class="feedback-bar" id="fb-excecao"></div>
+
+          <div class="cal-nav">
+            <button class="cal-nav-btn" onclick="calMes(-1)">&#8592;</button>
+            <span class="cal-mes-lbl" id="cal-mes-lbl"></span>
+            <button class="cal-nav-btn" onclick="calMes(1)">&#8594;</button>
+          </div>
+          <div class="cal-grid" id="cal-grid"></div>
+
+          <div class="edit-panel" id="edit-panel" style="display:none">
+            <div class="edit-panel-title" id="edit-panel-title">Configurar dia</div>
+            <div class="edit-tipo">
+              <div class="tipo-opt" id="opt-horario" onclick="setTipoEdit('horario')">✎ Horário diferente</div>
+              <div class="tipo-opt" id="opt-folga" onclick="setTipoEdit('folga')">✕ Folga / Fechado</div>
+            </div>
+            <div id="edit-times-wrap">
+              <div class="edit-times">
+                <input type="time" id="et-inicio" value="08:00" />
+                <span class="sep">até</span>
+                <input type="time" id="et-fim" value="18:00" />
+              </div>
+            </div>
+            <div class="edit-btns">
+              <button class="btn-aplicar aplicar" onclick="aplicarExcecao()">Aplicar</button>
+              <button class="btn-aplicar limpar" onclick="removerExcecao()">Remover exceção</button>
+            </div>
+            <div class="feedback-bar" id="fb-excecao"></div>
+          </div>
         </div>
+
       </div>
-
     </div>
   </div>
-</div>
 
-<!-- ── MODAL CANCELAR ── -->
-<div class="modal-overlay" id="modal-cancelar" style="display:none" onclick="fecharModal(event)">
-  <div class="modal-box">
-    <div class="modal-header">
-      <span class="modal-titulo">Cancelar agendamento</span>
-      <button class="modal-fechar" onclick="fecharModalDireto()">✕</button>
+  <!-- ── MODAL CANCELAR ── -->
+  <div class="modal-overlay" id="modal-cancelar" style="display:none" onclick="fecharModal(event)">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span class="modal-titulo">Cancelar agendamento</span>
+        <button class="modal-fechar" onclick="fecharModalDireto()">✕</button>
+      </div>
+      <div class="modal-info" id="modal-info"></div>
+      <div class="fg" style="margin-bottom:0">
+        <label class="flbl"
+          style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px">
+          Motivo <span style="color:#555;font-size:11px;text-transform:none;letter-spacing:0">(opcional)</span>
+        </label>
+        <textarea class="fi modal-textarea" id="modal-motivo" rows="3"
+          placeholder="Ex: Imprevisto, cliente solicitou..."></textarea>
+      </div>
+      <div class="modal-btns">
+        <button class="btn btn-sec" onclick="fecharModalDireto()">Voltar</button>
+        <button class="btn btn-cancelar-confirmar" id="btn-confirmar-cancel" onclick="confirmarCancelamento()">Confirmar
+          cancelamento</button>
+      </div>
+      <div class="feedback-bar" id="fb-modal"></div>
     </div>
-    <div class="modal-info" id="modal-info"></div>
-    <div class="fg" style="margin-bottom:0">
-      <label class="flbl" style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px">
-        Motivo <span style="color:#555;font-size:11px;text-transform:none;letter-spacing:0">(opcional)</span>
-      </label>
-      <textarea class="fi modal-textarea" id="modal-motivo" rows="3" placeholder="Ex: Imprevisto, cliente solicitou..."></textarea>
-    </div>
-    <div class="modal-btns">
-      <button class="btn btn-sec" onclick="fecharModalDireto()">Voltar</button>
-      <button class="btn btn-cancelar-confirmar" id="btn-confirmar-cancel" onclick="confirmarCancelamento()">Confirmar cancelamento</button>
-    </div>
-    <div class="feedback-bar" id="fb-modal"></div>
   </div>
-</div>
 
-<script>
-// ──────────────────────────────────────────
-// TABS
-// ──────────────────────────────────────────
-function setTab(t) {
-  const ids = ['agendamentos', 'servicos', 'agenda'];
-  document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', ids[i] === t));
-  document.querySelectorAll('.tab-panel').forEach(el => el.classList.remove('active'));
-  document.getElementById('tab-' + t).classList.add('active');
-}
+  <script>
+    // ──────────────────────────────────────────
+    // TABS
+    // ──────────────────────────────────────────
+    function setTab(t) {
+      const ids = ['agendamentos', 'servicos', 'agenda'];
+      document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', ids[i] === t));
+      document.querySelectorAll('.tab-panel').forEach(el => el.classList.remove('active'));
+      document.getElementById('tab-' + t).classList.add('active');
+    }
 
-// ──────────────────────────────────────────
-// SERVIÇOS
-// ──────────────────────────────────────────
-async function adicionarServico() {
-  const nome = document.getElementById('s-nome').value.trim();
-  const preco = document.getElementById('s-preco').value;
-  const duracao = document.getElementById('s-duracao').value;
-  const desc = document.getElementById('s-desc').value.trim();
-  const ok = document.getElementById('ok-srv');
-  const erro = document.getElementById('erro-srv');
-  ok.style.display = 'none'; erro.style.display = 'none';
-  if (!nome || !preco || !duracao) { erro.textContent = 'Preencha nome, preço e duração.'; erro.style.display = 'block'; return; }
-  const res = await fetch('/api/servico', { method: 'POST', headers: {'Content-Type':'application/json'},
-    body: JSON.stringify({ nome, preco: parseFloat(preco), descricao: desc, duracao_min: parseInt(duracao) }) });
-  const json = await res.json();
-  if (!json.ok) { erro.textContent = json.erro || 'Erro ao adicionar.'; erro.style.display = 'block'; return; }
-  const grid = document.getElementById('srv-grid');
-  const empty = document.getElementById('empty-srv');
-  if (empty) empty.remove();
-  const precoFmt = parseFloat(preco).toFixed(2).replace('.', ',');
-  const div = document.createElement('div');
-  div.className = 'srv-row'; div.id = 'srv-' + json.id;
-  div.innerHTML = `<div><div class="srv-nome">${nome}</div><div class="srv-desc">${desc}</div></div>
+    // ──────────────────────────────────────────
+    // SERVIÇOS
+    // ──────────────────────────────────────────
+    async function adicionarServico() {
+      const nome = document.getElementById('s-nome').value.trim();
+      const preco = document.getElementById('s-preco').value;
+      const duracao = document.getElementById('s-duracao').value;
+      const desc = document.getElementById('s-desc').value.trim();
+      const ok = document.getElementById('ok-srv');
+      const erro = document.getElementById('erro-srv');
+      ok.style.display = 'none'; erro.style.display = 'none';
+      if (!nome || !preco || !duracao) { erro.textContent = 'Preencha nome, preço e duração.'; erro.style.display = 'block'; return; }
+      const res = await fetch('/api/servico', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nome, preco: parseFloat(preco), descricao: desc, duracao_min: parseInt(duracao) })
+      });
+      const json = await res.json();
+      if (!json.ok) { erro.textContent = json.erro || 'Erro ao adicionar.'; erro.style.display = 'block'; return; }
+      const grid = document.getElementById('srv-grid');
+      const empty = document.getElementById('empty-srv');
+      if (empty) empty.remove();
+      const precoFmt = parseFloat(preco).toFixed(2).replace('.', ',');
+      const div = document.createElement('div');
+      div.className = 'srv-row'; div.id = 'srv-' + json.id;
+      div.innerHTML = `<div><div class="srv-nome">${nome}</div><div class="srv-desc">${desc}</div></div>
     <div class="srv-badges"><span class="badge">${duracao} min</span>
     <span class="badge preco">R$ ${precoFmt}</span>
     <button class="btn-del" onclick="deletarServico(${json.id})">Remover</button></div>`;
-  grid.appendChild(div);
-  ['s-nome','s-preco','s-duracao','s-desc'].forEach(id => document.getElementById(id).value = '');
-  ok.style.display = 'block'; setTimeout(() => ok.style.display = 'none', 3000);
-}
-
-async function deletarServico(id) {
-  if (!confirm('Remover este serviço?')) return;
-  const res = await fetch('/api/servico/' + id, { method: 'DELETE' });
-  const json = await res.json();
-  if (json.ok) { const el = document.getElementById('srv-' + id); if (el) el.remove(); }
-  else alert(json.erro || 'Erro ao remover.');
-}
-
-// ──────────────────────────────────────────
-// AGENDA — estado
-// ──────────────────────────────────────────
-const DIAS_NOMES = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-const MESES_NOMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-
-let agendaState = {
-  yr: new Date().getFullYear(),
-  mo: new Date().getMonth(),
-  padrao: {},
-  excecoes: {},
-  agendados: [],
-  selMode: false,
-  selDias: new Set(),
-  tipoEdit: 'horario',
-  inicializado: false
-};
-
-async function initAgenda() {
-  if (agendaState.inicializado) { renderPadrao(); renderCal(); return; }
-  agendaState.inicializado = true;
-  await carregarAgenda();
-  renderPadrao();
-  renderCal();
-}
-
-async function carregarAgenda() {
-  const mes = agendaState.yr + '-' + String(agendaState.mo + 1).padStart(2, '0');
-  const barbeiroId = {{ session_barbeiro_id }};
-  try {
-    const res = await fetch(`/api/agenda/${barbeiroId}?mes=${mes}`);
-    const json = await res.json();
-    if (json.ok) {
-      agendaState.padrao = json.padrao || {};
-      agendaState.excecoes = json.excecoes || {};
-      agendaState.agendados = json.agendados || [];
+      grid.appendChild(div);
+      ['s-nome', 's-preco', 's-duracao', 's-desc'].forEach(id => document.getElementById(id).value = '');
+      ok.style.display = 'block'; setTimeout(() => ok.style.display = 'none', 3000);
     }
-  } catch(e) { console.error(e); }
+
+    async function deletarServico(id) {
+      if (!confirm('Remover este serviço?')) return;
+      const res = await fetch('/api/servico/' + id, { method: 'DELETE' });
+      const json = await res.json();
+      if (json.ok) { const el = document.getElementById('srv-' + id); if (el) el.remove(); }
+      else alert(json.erro || 'Erro ao remover.');
+    }
+
+    // ──────────────────────────────────────────
+    // AGENDA — estado
+    // ──────────────────────────────────────────
+    const DIAS_NOMES = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+    const MESES_NOMES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+
+    let agendaState = {
+      yr: new Date().getFullYear(),
+      mo: new Date().getMonth(),
+      padrao: {},
+      excecoes: {},
+      agendados: [],
+      selMode: false,
+      selDias: new Set(),
+      tipoEdit: 'horario',
+      inicializado: false
+    };
+
+    async function initAgenda() {
+      if (agendaState.inicializado) { renderPadrao(); renderCal(); return; }
+      agendaState.inicializado = true;
+      await carregarAgenda();
+      renderPadrao();
+      renderCal();
+    }
+
+    async function carregarAgenda() {
+      const mes = agendaState.yr + '-' + String(agendaState.mo + 1).padStart(2, '0');
+      const barbeiroId = {{ session_barbeiro_id }};
+    try {
+      const res = await fetch(`/api/agenda/${barbeiroId}?mes=${mes}`);
+      const json = await res.json();
+      if (json.ok) {
+        agendaState.padrao = json.padrao || {};
+        agendaState.excecoes = json.excecoes || {};
+        agendaState.agendados = json.agendados || [];
+      }
+    } catch (e) { console.error('ERRO carregarAgenda:', e); }
 }
 
-function renderPadrao() {
-  const dias = [
-    {num:1, nome:'Seg'}, {num:2, nome:'Ter'}, {num:3, nome:'Qua'},
-    {num:4, nome:'Qui'}, {num:5, nome:'Sex'}, {num:6, nome:'Sáb'}
-  ];
-  const container = document.getElementById('dias-padrao');
-  container.innerHTML = dias.map(d => {
-    const p = agendaState.padrao[d.num];
-    const ativo = !!p;
-    const ini = p ? p.hora_inicio : '08:00';
-    const fim = p ? p.hora_fim : '18:00';
-    return `
+
+    function renderPadrao() {
+      const dias = [
+        { num: 1, nome: 'Seg' }, { num: 2, nome: 'Ter' }, { num: 3, nome: 'Qua' },
+        { num: 4, nome: 'Qui' }, { num: 5, nome: 'Sex' }, { num: 6, nome: 'Sáb' }
+      ];
+      const container = document.getElementById('dias-padrao');
+      container.innerHTML = dias.map(d => {
+        const p = agendaState.padrao[d.num];
+        const ativo = !!p;
+        const ini = p ? p.hora_inicio : '08:00';
+        const fim = p ? p.hora_fim : '18:00';
+        return `
       <div class="dia-row">
         <span class="dia-label">${d.nome}</span>
         <label class="dia-toggle">
@@ -302,280 +318,287 @@ function renderPadrao() {
           <input type="time" id="fim-d${d.num}" value="${fim}" ${!ativo ? 'disabled' : ''}/>
         </div>
       </div>`;
-  }).join('');
-}
-
-function toggleDiaPadrao(num) {
-  const ativo = document.getElementById('chk-d' + num).checked;
-  document.getElementById('ini-d' + num).disabled = !ativo;
-  document.getElementById('fim-d' + num).disabled = !ativo;
-}
-
-async function salvarPadrao() {
-  const dias = [1,2,3,4,5,6];
-  const lista = dias.map(num => {
-    const ativo = document.getElementById('chk-d' + num)?.checked;
-    return {
-      dia_semana: num,
-      hora_inicio: ativo ? document.getElementById('ini-d' + num).value : null,
-      hora_fim:    ativo ? document.getElementById('fim-d' + num).value : null
-    };
-  });
-  const fb = document.getElementById('fb-padrao');
-  try {
-    const res = await fetch('/api/agenda/padrao', { method:'POST',
-      headers:{'Content-Type':'application/json'}, body: JSON.stringify({dias: lista}) });
-    const json = await res.json();
-    if (json.ok) {
-      agendaState.padrao = {};
-      lista.forEach(d => { if (d.hora_inicio) agendaState.padrao[d.dia_semana] = {hora_inicio: d.hora_inicio, hora_fim: d.hora_fim}; });
-      mostrarFeedback(fb, 'Padrão salvo com sucesso!', true);
-      renderCal();
-    } else {
-      mostrarFeedback(fb, json.erro || 'Erro ao salvar.', false);
+      }).join('');
     }
-  } catch(e) { mostrarFeedback(fb, 'Erro de conexão.', false); }
-}
 
-async function calMes(dir) {
-  agendaState.mo += dir;
-  if (agendaState.mo > 11) { agendaState.mo = 0; agendaState.yr++; }
-  if (agendaState.mo < 0)  { agendaState.mo = 11; agendaState.yr--; }
-  agendaState.selDias.clear();
-  document.getElementById('edit-panel').style.display = 'none';
-  await carregarAgenda();
-  renderCal();
-}
-
-function renderCal() {
-  const { yr, mo, excecoes, agendados, selDias } = agendaState;
-  document.getElementById('cal-mes-lbl').textContent = MESES_NOMES[mo] + ' ' + yr;
-  const grid = document.getElementById('cal-grid');
-  const hoje = new Date(); hoje.setHours(0,0,0,0);
-  grid.innerHTML = DIAS_NOMES.map(d => `<div class="cal-dlbl">${d}</div>`).join('');
-  const fd = new Date(yr, mo, 1).getDay();
-  const dim = new Date(yr, mo + 1, 0).getDate();
-  for (let i = 0; i < fd; i++) grid.innerHTML += `<div class="cal-day empty"></div>`;
-  for (let d = 1; d <= dim; d++) {
-    const dt = new Date(yr, mo, d);
-    const iso = yr + '-' + String(mo+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
-    const past = dt < hoje;
-    const isDom = dt.getDay() === 0;
-    const isHoje = dt.toDateString() === hoje.toDateString();
-    const isSel = selDias.has(iso);
-    const excecao = excecoes[iso];
-    const temAgend = agendados.includes(iso);
-    let cls = 'cal-day';
-    if (isDom)  cls += ' domingo';
-    else if (past && !isHoje) cls += ' past';
-    else        cls += ' normal';
-    if (isHoje) cls += ' hoje';
-    if (isSel)  cls += ' sel';
-    if (excecao !== undefined) cls += excecao === null || (!excecao.hora_inicio) ? ' excecao-folga' : ' excecao-horario';
-    if (temAgend) cls += ' tem-agendamento';
-    const clickavel = !isDom && !(past && !isHoje);
-    const onclick = clickavel ? `onclick="clicouDia('${iso}')"` : '';
-    grid.innerHTML += `<div class="${cls}" ${onclick}>${d}</div>`;
-  }
-  atualizarSelCount();
-}
-
-function clicouDia(iso) {
-  const { selMode, selDias } = agendaState;
-  if (selMode) {
-    if (selDias.has(iso)) selDias.delete(iso);
-    else selDias.add(iso);
-    renderCal();
-    if (selDias.size > 0) abrirEditPanel([...selDias]);
-    else document.getElementById('edit-panel').style.display = 'none';
-  } else {
-    agendaState.selDias.clear();
-    agendaState.selDias.add(iso);
-    renderCal();
-    abrirEditPanel([iso]);
-  }
-}
-
-function abrirEditPanel(datas) {
-  const panel = document.getElementById('edit-panel');
-  const title = document.getElementById('edit-panel-title');
-  panel.style.display = 'block';
-  if (datas.length === 1) {
-    const [y, m, d] = datas[0].split('-');
-    title.textContent = `Configurar ${d}/${m}/${y}`;
-    const exc = agendaState.excecoes[datas[0]];
-    if (exc && exc.hora_inicio) {
-      document.getElementById('et-inicio').value = exc.hora_inicio;
-      document.getElementById('et-fim').value = exc.hora_fim;
-      setTipoEdit('horario');
-    } else if (exc !== undefined) {
-      setTipoEdit('folga');
-    } else {
-      setTipoEdit('horario');
+    function toggleDiaPadrao(num) {
+      const ativo = document.getElementById('chk-d' + num).checked;
+      document.getElementById('ini-d' + num).disabled = !ativo;
+      document.getElementById('fim-d' + num).disabled = !ativo;
     }
-  } else {
-    title.textContent = `Configurar ${datas.length} dias selecionados`;
-    setTipoEdit('horario');
-  }
-  document.getElementById('fb-excecao').style.display = 'none';
-}
 
-function toggleSelMode() {
-  agendaState.selMode = document.getElementById('chk-sel-mode').checked;
-  if (!agendaState.selMode) {
-    agendaState.selDias.clear();
-    document.getElementById('edit-panel').style.display = 'none';
-    renderCal();
-  }
-  atualizarSelCount();
-}
-
-function atualizarSelCount() {
-  const n = agendaState.selDias.size;
-  const el = document.getElementById('sel-count');
-  el.textContent = agendaState.selMode && n > 0 ? `${n} dia${n>1?'s':''} selecionado${n>1?'s':''}` : '';
-}
-
-function setTipoEdit(tipo) {
-  agendaState.tipoEdit = tipo;
-  document.getElementById('opt-horario').className = 'tipo-opt' + (tipo === 'horario' ? ' active-horario' : '');
-  document.getElementById('opt-folga').className   = 'tipo-opt' + (tipo === 'folga'   ? ' active-folga'   : '');
-  document.getElementById('edit-times-wrap').style.display = tipo === 'horario' ? 'block' : 'none';
-}
-
-async function aplicarExcecao() {
-  const datas = [...agendaState.selDias];
-  if (!datas.length) return;
-  const fb = document.getElementById('fb-excecao');
-  const isFolga = agendaState.tipoEdit === 'folga';
-  const payload = {
-    datas,
-    hora_inicio: isFolga ? null : document.getElementById('et-inicio').value,
-    hora_fim:    isFolga ? null : document.getElementById('et-fim').value
-  };
-  try {
-    const res = await fetch('/api/agenda/excecao', { method:'POST',
-      headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-    const json = await res.json();
-    if (json.ok) {
-      datas.forEach(data => {
-        agendaState.excecoes[data] = isFolga ? null : { hora_inicio: payload.hora_inicio, hora_fim: payload.hora_fim };
+    async function salvarPadrao() {
+      const dias = [1, 2, 3, 4, 5, 6];
+      const lista = dias.map(num => {
+        const ativo = document.getElementById('chk-d' + num)?.checked;
+        return {
+          dia_semana: num,
+          hora_inicio: ativo ? document.getElementById('ini-d' + num).value : null,
+          hora_fim: ativo ? document.getElementById('fim-d' + num).value : null
+        };
       });
-      mostrarFeedback(fb, `Aplicado em ${datas.length} dia${datas.length>1?'s':''}!`, true);
-      renderCal();
-    } else {
-      mostrarFeedback(fb, json.erro || 'Erro ao salvar.', false);
+      const fb = document.getElementById('fb-padrao');
+      try {
+        const res = await fetch('/api/agenda/padrao', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ dias: lista })
+        });
+        const json = await res.json();
+        if (json.ok) {
+          agendaState.padrao = {};
+          lista.forEach(d => { if (d.hora_inicio) agendaState.padrao[d.dia_semana] = { hora_inicio: d.hora_inicio, hora_fim: d.hora_fim }; });
+          mostrarFeedback(fb, 'Padrão salvo com sucesso!', true);
+          renderCal();
+        } else {
+          mostrarFeedback(fb, json.erro || 'Erro ao salvar.', false);
+        }
+      } catch (e) { mostrarFeedback(fb, 'Erro de conexão.', false); }
     }
-  } catch(e) { mostrarFeedback(fb, 'Erro de conexão.', false); }
-}
 
-async function removerExcecao() {
-  const datas = [...agendaState.selDias];
-  if (!datas.length) return;
-  const fb = document.getElementById('fb-excecao');
-  try {
-    const res = await fetch('/api/agenda/excecao', { method:'DELETE',
-      headers:{'Content-Type':'application/json'}, body: JSON.stringify({datas}) });
-    const json = await res.json();
-    if (json.ok) {
-      datas.forEach(data => delete agendaState.excecoes[data]);
-      mostrarFeedback(fb, 'Exceção removida — voltando ao padrão.', true);
+    async function calMes(dir) {
+      agendaState.mo += dir;
+      if (agendaState.mo > 11) { agendaState.mo = 0; agendaState.yr++; }
+      if (agendaState.mo < 0) { agendaState.mo = 11; agendaState.yr--; }
+      agendaState.selDias.clear();
+      document.getElementById('edit-panel').style.display = 'none';
+      await carregarAgenda();
       renderCal();
-    } else {
-      mostrarFeedback(fb, json.erro || 'Erro ao remover.', false);
     }
-  } catch(e) { mostrarFeedback(fb, 'Erro de conexão.', false); }
-}
 
-// ──────────────────────────────────────────
-// CANCELAMENTO
-// ──────────────────────────────────────────
-let _cancelId = null;
+    function renderCal() {
+      const { yr, mo, excecoes, agendados, selDias } = agendaState;
+      document.getElementById('cal-mes-lbl').textContent = MESES_NOMES[mo] + ' ' + yr;
+      const grid = document.getElementById('cal-grid');
+      const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+      grid.innerHTML = DIAS_NOMES.map(d => `<div class="cal-dlbl">${d}</div>`).join('');
+      const fd = new Date(yr, mo, 1).getDay();
+      const dim = new Date(yr, mo + 1, 0).getDate();
+      for (let i = 0; i < fd; i++) grid.innerHTML += `<div class="cal-day empty"></div>`;
+      for (let d = 1; d <= dim; d++) {
+        const dt = new Date(yr, mo, d);
+        const iso = yr + '-' + String(mo + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+        const past = dt < hoje;
+        const isDom = dt.getDay() === 0;
+        const isHoje = dt.toDateString() === hoje.toDateString();
+        const isSel = selDias.has(iso);
+        const excecao = excecoes[iso];
+        const temAgend = agendados.includes(iso);
+        let cls = 'cal-day';
+        if (isDom) cls += ' domingo';
+        else if (past && !isHoje) cls += ' past';
+        else cls += ' normal';
+        if (isHoje) cls += ' hoje';
+        if (isSel) cls += ' sel';
+        if (excecao !== undefined) cls += excecao === null || (!excecao.hora_inicio) ? ' excecao-folga' : ' excecao-horario';
+        if (temAgend) cls += ' tem-agendamento';
+        const clickavel = !isDom && !(past && !isHoje);
+        const onclick = clickavel ? `onclick="clicouDia('${iso}')"` : '';
+        grid.innerHTML += `<div class="${cls}" ${onclick}>${d}</div>`;
+      }
+      atualizarSelCount();
+    }
 
-function abrirModalCancelar(btn) {
-  const id      = btn.dataset.id;
-  const cliente = btn.dataset.cliente;
-  const servico = btn.dataset.servico;
-  const horario = btn.dataset.horario;
-  const data    = btn.dataset.data;
-  _cancelId = id;
-  document.getElementById('modal-motivo').value = '';
-  document.getElementById('fb-modal').style.display = 'none';
-  document.getElementById('btn-confirmar-cancel').disabled = false;
-  document.getElementById('modal-info').innerHTML =
-    `<div class="modal-info-row"><span class="modal-info-k">Cliente</span><span class="modal-info-v">${cliente}</span></div>
+    function clicouDia(iso) {
+      const { selMode, selDias } = agendaState;
+      if (selMode) {
+        if (selDias.has(iso)) selDias.delete(iso);
+        else selDias.add(iso);
+        renderCal();
+        if (selDias.size > 0) abrirEditPanel([...selDias]);
+        else document.getElementById('edit-panel').style.display = 'none';
+      } else {
+        agendaState.selDias.clear();
+        agendaState.selDias.add(iso);
+        renderCal();
+        abrirEditPanel([iso]);
+      }
+    }
+
+    function abrirEditPanel(datas) {
+      const panel = document.getElementById('edit-panel');
+      const title = document.getElementById('edit-panel-title');
+      panel.style.display = 'block';
+      if (datas.length === 1) {
+        const [y, m, d] = datas[0].split('-');
+        title.textContent = `Configurar ${d}/${m}/${y}`;
+        const exc = agendaState.excecoes[datas[0]];
+        if (exc && exc.hora_inicio) {
+          document.getElementById('et-inicio').value = exc.hora_inicio;
+          document.getElementById('et-fim').value = exc.hora_fim;
+          setTipoEdit('horario');
+        } else if (exc !== undefined) {
+          setTipoEdit('folga');
+        } else {
+          setTipoEdit('horario');
+        }
+      } else {
+        title.textContent = `Configurar ${datas.length} dias selecionados`;
+        setTipoEdit('horario');
+      }
+      document.getElementById('fb-excecao').style.display = 'none';
+    }
+
+    function toggleSelMode() {
+      agendaState.selMode = document.getElementById('chk-sel-mode').checked;
+      if (!agendaState.selMode) {
+        agendaState.selDias.clear();
+        document.getElementById('edit-panel').style.display = 'none';
+        renderCal();
+      }
+      atualizarSelCount();
+    }
+
+    function atualizarSelCount() {
+      const n = agendaState.selDias.size;
+      const el = document.getElementById('sel-count');
+      el.textContent = agendaState.selMode && n > 0 ? `${n} dia${n > 1 ? 's' : ''} selecionado${n > 1 ? 's' : ''}` : '';
+    }
+
+    function setTipoEdit(tipo) {
+      agendaState.tipoEdit = tipo;
+      document.getElementById('opt-horario').className = 'tipo-opt' + (tipo === 'horario' ? ' active-horario' : '');
+      document.getElementById('opt-folga').className = 'tipo-opt' + (tipo === 'folga' ? ' active-folga' : '');
+      document.getElementById('edit-times-wrap').style.display = tipo === 'horario' ? 'block' : 'none';
+    }
+
+    async function aplicarExcecao() {
+      const datas = [...agendaState.selDias];
+      if (!datas.length) return;
+      const fb = document.getElementById('fb-excecao');
+      const isFolga = agendaState.tipoEdit === 'folga';
+      const payload = {
+        datas,
+        hora_inicio: isFolga ? null : document.getElementById('et-inicio').value,
+        hora_fim: isFolga ? null : document.getElementById('et-fim').value
+      };
+      try {
+        const res = await fetch('/api/agenda/excecao', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (json.ok) {
+          datas.forEach(data => {
+            agendaState.excecoes[data] = isFolga ? null : { hora_inicio: payload.hora_inicio, hora_fim: payload.hora_fim };
+          });
+          mostrarFeedback(fb, `Aplicado em ${datas.length} dia${datas.length > 1 ? 's' : ''}!`, true);
+          renderCal();
+        } else {
+          mostrarFeedback(fb, json.erro || 'Erro ao salvar.', false);
+        }
+      } catch (e) { mostrarFeedback(fb, 'Erro de conexão.', false); }
+    }
+
+    async function removerExcecao() {
+      const datas = [...agendaState.selDias];
+      if (!datas.length) return;
+      const fb = document.getElementById('fb-excecao');
+      try {
+        const res = await fetch('/api/agenda/excecao', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ datas })
+        });
+        const json = await res.json();
+        if (json.ok) {
+          datas.forEach(data => delete agendaState.excecoes[data]);
+          mostrarFeedback(fb, 'Exceção removida — voltando ao padrão.', true);
+          renderCal();
+        } else {
+          mostrarFeedback(fb, json.erro || 'Erro ao remover.', false);
+        }
+      } catch (e) { mostrarFeedback(fb, 'Erro de conexão.', false); }
+    }
+
+    // ──────────────────────────────────────────
+    // CANCELAMENTO
+    // ──────────────────────────────────────────
+    let _cancelId = null;
+
+    function abrirModalCancelar(btn) {
+      const id = btn.dataset.id;
+      const cliente = btn.dataset.cliente;
+      const servico = btn.dataset.servico;
+      const horario = btn.dataset.horario;
+      const data = btn.dataset.data;
+      _cancelId = id;
+      document.getElementById('modal-motivo').value = '';
+      document.getElementById('fb-modal').style.display = 'none';
+      document.getElementById('btn-confirmar-cancel').disabled = false;
+      document.getElementById('modal-info').innerHTML =
+        `<div class="modal-info-row"><span class="modal-info-k">Cliente</span><span class="modal-info-v">${cliente}</span></div>
      <div class="modal-info-row"><span class="modal-info-k">Serviço</span><span class="modal-info-v">${servico}</span></div>
      <div class="modal-info-row"><span class="modal-info-k">Data</span><span class="modal-info-v">${data} às ${horario}</span></div>`;
-  document.getElementById('modal-cancelar').style.display = 'flex';
-  document.body.style.overflow = 'hidden';
-}
-
-function fecharModal(e) {
-  if (e.target === document.getElementById('modal-cancelar')) fecharModalDireto();
-}
-
-function fecharModalDireto() {
-  document.getElementById('modal-cancelar').style.display = 'none';
-  document.body.style.overflow = '';
-  _cancelId = null;
-}
-
-async function confirmarCancelamento() {
-  if (!_cancelId) return;
-  const motivo = document.getElementById('modal-motivo').value.trim();
-  const btn = document.getElementById('btn-confirmar-cancel');
-  const fb = document.getElementById('fb-modal');
-  btn.disabled = true;
-  btn.textContent = 'Cancelando...';
-  try {
-    const res = await fetch(`/api/agendamento/${_cancelId}`, {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ motivo })
-    });
-    const json = await res.json();
-    if (json.ok) {
-      const card = document.getElementById('ag-' + _cancelId);
-      if (card) {
-        card.style.transition = 'opacity .3s, transform .3s';
-        card.style.opacity = '0';
-        card.style.transform = 'translateX(12px)';
-        setTimeout(() => {
-          card.remove();
-          const restantes = document.querySelectorAll('.ag-card.futuro');
-          if (restantes.length === 0) {
-            const sec = document.querySelector('#tab-agendamentos .sec-title--sm');
-            if (sec) {
-              const empty = document.createElement('div');
-              empty.className = 'empty';
-              empty.textContent = 'Nenhum agendamento futuro.';
-              sec.insertAdjacentElement('afterend', empty);
-            }
-          }
-        }, 300);
-      }
-      fecharModalDireto();
-    } else {
-      mostrarFeedback(fb, json.erro || 'Erro ao cancelar.', false);
-      btn.disabled = false;
-      btn.textContent = 'Confirmar cancelamento';
+      document.getElementById('modal-cancelar').style.display = 'flex';
+      document.body.style.overflow = 'hidden';
     }
-  } catch(e) {
-    mostrarFeedback(fb, 'Erro de conexão.', false);
-    btn.disabled = false;
-    btn.textContent = 'Confirmar cancelamento';
-  }
-}
 
-// ──────────────────────────────────────────
-// UTILS
-// ──────────────────────────────────────────
-function mostrarFeedback(el, msg, ok) {
-  el.textContent = msg;
-  el.className = 'feedback-bar ' + (ok ? 'ok' : 'err');
-  el.style.display = 'block';
-  setTimeout(() => el.style.display = 'none', 3500);
-}
-</script>
+    function fecharModal(e) {
+      if (e.target === document.getElementById('modal-cancelar')) fecharModalDireto();
+    }
+
+    function fecharModalDireto() {
+      document.getElementById('modal-cancelar').style.display = 'none';
+      document.body.style.overflow = '';
+      _cancelId = null;
+    }
+
+    async function confirmarCancelamento() {
+      if (!_cancelId) return;
+      const motivo = document.getElementById('modal-motivo').value.trim();
+      const btn = document.getElementById('btn-confirmar-cancel');
+      const fb = document.getElementById('fb-modal');
+      btn.disabled = true;
+      btn.textContent = 'Cancelando...';
+      try {
+        const res = await fetch(`/api/agendamento/${_cancelId}`, {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ motivo })
+        });
+        const json = await res.json();
+        if (json.ok) {
+          const card = document.getElementById('ag-' + _cancelId);
+          if (card) {
+            card.style.transition = 'opacity .3s, transform .3s';
+            card.style.opacity = '0';
+            card.style.transform = 'translateX(12px)';
+            setTimeout(() => {
+              card.remove();
+              const restantes = document.querySelectorAll('.ag-card.futuro');
+              if (restantes.length === 0) {
+                const sec = document.querySelector('#tab-agendamentos .sec-title--sm');
+                if (sec) {
+                  const empty = document.createElement('div');
+                  empty.className = 'empty';
+                  empty.textContent = 'Nenhum agendamento futuro.';
+                  sec.insertAdjacentElement('afterend', empty);
+                }
+              }
+            }, 300);
+          }
+          fecharModalDireto();
+        } else {
+          mostrarFeedback(fb, json.erro || 'Erro ao cancelar.', false);
+          btn.disabled = false;
+          btn.textContent = 'Confirmar cancelamento';
+        }
+      } catch (e) {
+        mostrarFeedback(fb, 'Erro de conexão.', false);
+        btn.disabled = false;
+        btn.textContent = 'Confirmar cancelamento';
+      }
+    }
+
+    // ──────────────────────────────────────────
+    // UTILS
+    // ──────────────────────────────────────────
+    function mostrarFeedback(el, msg, ok) {
+      el.textContent = msg;
+      el.className = 'feedback-bar ' + (ok ? 'ok' : 'err');
+      el.style.display = 'block';
+      setTimeout(() => el.style.display = 'none', 3500);
+    }
+  </script>
 </body>
+
 </html>

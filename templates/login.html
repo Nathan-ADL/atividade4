@@ -53,7 +53,7 @@
         `Não tem conta? <a href="/cadastro?tipo=${t}">Criar conta</a>`;
     }
 
-    setTipo('cliente');
+    setTipo(tipoAtual);
 
     document.addEventListener('keydown', e => { if (e.key === 'Enter') entrar(); });
 

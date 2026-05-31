@@ -128,34 +128,45 @@
 
     const SVCS = [
       {% for servico in servicos %}
-      {
-        id: 'c' + '{{ servico.id }}',
+    {
+      id: 'c' + '{{ servico.id }}',
         name: '{{ servico.nome }}',
-        meta: '{{ servico.descricao }}',
-        price: parseFloat('{{ servico.preco }}'),
-        duracao: parseInt('{{ servico.duracao_min }}')
-      }{% if not loop.last %},{% endif %}
-      {% endfor %}
+          meta: '{{ servico.descricao }}',
+            price: parseFloat('{{ servico.preco }}'),
+              duracao: parseInt('{{ servico.duracao_min }}')
+    } {% if not loop.last %}, {% endif %}
+    {% endfor %}
     ];
 
     const BRBRS = [
       {% for barbeiro in barbeiros %}
-      {
-        id: 'b' + '{{ barbeiro.id }}',
+    {
+      id: 'b' + '{{ barbeiro.id }}',
         ini: '{{ barbeiro.nome.split()[0][0] if barbeiro.nome.split() else "" }}{{ barbeiro.nome.split()[1][0] if barbeiro.nome.split()|length > 1 else "" }}',
-        name: '{{ barbeiro.nome }}',
-        spec: '{{ barbeiro.especialidade or "" }}'
-      }{% if not loop.last %},{% endif %}
-      {% endfor %}
+          name: '{{ barbeiro.nome }}',
+            spec: '{{ barbeiro.especialidade or "" }}'
+    } {% if not loop.last %}, {% endif %}
+    {% endfor %}
     ];
 
     const DISPO = [
       {% for d in disponibilidade %}
-      {
-        barbeiroId: parseInt('{{ d.barbeiro_id }}'),
+    {
+      barbeiroId: parseInt('{{ d.barbeiro_id }}'),
         diaSemana: parseInt('{{ d.dia_semana }}'),
-        inicio: {% if d.hora_inicio %}'{{ d.hora_inicio }}'{% else %}null{% endif %},
-        fim: {% if d.hora_fim %}'{{ d.hora_fim }}'{% else %}null{% endif %}
+          inicio: {% if d.hora_inicio %} '{{ d.hora_inicio }}'{% else %} null{% endif %},
+      fim: {% if d.hora_fim %} '{{ d.hora_fim }}'{% else %} null{% endif %}
+    } {% if not loop.last %}, {% endif %}
+    {% endfor %}
+    ];
+
+    const EXCECOES = [
+      {% for e in excecoes %}
+      {
+        barbeiroId: {{ e.barbeiro_id }},
+        data: '{{ e.data }}',
+        horaInicio: {% if e.hora_inicio %}'{{ e.hora_inicio }}'{% else %}null{% endif %},
+        horaFim: {% if e.hora_fim %}'{{ e.hora_fim }}'{% else %}null{% endif %}
       }{% if not loop.last %},{% endif %}
       {% endfor %}
     ];
@@ -256,45 +267,51 @@
     }
 
     function buildCal() {
-      
-      document.getElementById('cml').textContent = MNS[S.mo] + ' ' + S.yr;
-      const g = document.getElementById('dgrid');
-      g.innerHTML = DLS.map(d => `<div class="dlbl">${d}</div>`).join('');
-      const fd = new Date(S.yr, S.mo, 1).getDay();
-      const dim = new Date(S.yr, S.mo + 1, 0).getDate();
-      const today = new Date(); today.setHours(0, 0, 0, 0);
+  document.getElementById('cml').textContent = MNS[S.mo] + ' ' + S.yr;
+  const g = document.getElementById('dgrid');
+  g.innerHTML = DLS.map(d => `<div class="dlbl">${d}</div>`).join('');
+  const fd = new Date(S.yr, S.mo, 1).getDay();
+  const dim = new Date(S.yr, S.mo + 1, 0).getDate();
+  const today = new Date(); today.setHours(0, 0, 0, 0);
 
-      for (let i = 0; i < fd; i++) g.innerHTML += `<div class="dcell empty"></div>`;
+  for (let i = 0; i < fd; i++) g.innerHTML += `<div class="dcell empty"></div>`;
 
-      for (let d = 1; d <= dim; d++) {
-        const dt = new Date(S.yr, S.mo, d);
-        const past = dt < today;
-        const isSun = dt.getDay() === 0;
-        const isTod = dt.toDateString() === today.toDateString();
-        const isSel = S.date && S.date.toDateString() === dt.toDateString();
+  for (let d = 1; d <= dim; d++) {
+    const dt = new Date(S.yr, S.mo, d);
+    const idBarbeiroPuro = S.barber ? parseInt(S.barber.replace('b', '')) : null;
+    const iso = S.yr + '-' + String(S.mo + 1).padStart(2, '0') + '-' + String(d).padStart(2, '0');
+    const past = dt < today;
+    const isSun = dt.getDay() === 0;
+    const isTod = dt.toDateString() === today.toDateString();
+    const isSel = S.date && S.date.toDateString() === dt.toDateString();
 
-        let barbeiroIndisponivel = true;
-        if (S.barber) {
-          const idBarbeiroPuro = parseInt(S.barber.replace('b', ''));
-          const diaDaSemanaBanco = obterDiaPadrao(dt.getDay());
-          const regraDispo = DISPO.find(r =>
-            r.barbeiroId === idBarbeiroPuro &&
-            r.diaSemana === diaDaSemanaBanco
-          );
-          if (regraDispo && regraDispo.inicio !== null && regraDispo.fim !== null) {
-            barbeiroIndisponivel = false;
-          }
-        }
+    const excecaoDoDia = EXCECOES.find(e =>
+      e.barbeiroId === idBarbeiroPuro && e.data === iso
+    );
 
-        let cls = 'dcell';
-        if (past || isSun || barbeiroIndisponivel) cls += ' past';
-        else if (isTod) cls += ' today';
-        if (isSel) cls += ' sel';
-
-        const fn = (past || isSun || barbeiroIndisponivel) ? '' : `onclick="selDate(${S.yr},${S.mo},${d})"`;
-        g.innerHTML += `<div class="${cls}" ${fn}>${d}</div>`;
+    let barbeiroIndisponivel = true;
+    if (excecaoDoDia !== undefined) {
+      barbeiroIndisponivel = excecaoDoDia.horaInicio === null;
+    } else if (S.barber) {
+      const diaDaSemanaBanco = obterDiaPadrao(dt.getDay());
+      const regraDispo = DISPO.find(r =>
+        r.barbeiroId === idBarbeiroPuro &&
+        r.diaSemana === diaDaSemanaBanco
+      );
+      if (regraDispo && regraDispo.inicio !== null && regraDispo.fim !== null) {
+        barbeiroIndisponivel = false;
       }
     }
+
+    let cls = 'dcell';
+    if (past || isSun || barbeiroIndisponivel) cls += ' past';
+    else if (isTod) cls += ' today';
+    if (isSel) cls += ' sel';
+
+    const fn = (past || isSun || barbeiroIndisponivel) ? '' : `onclick="selDate(${S.yr},${S.mo},${d})"`;
+    g.innerHTML += `<div class="${cls}" ${fn}>${d}</div>`;
+  }
+}
 
     function cm(d) {
       S.mo += d;
@@ -322,19 +339,39 @@
       const idBarbeiroPuro = parseInt(S.barber.replace('b', ''));
       const diaDaSemanaBanco = obterDiaPadrao(S.date.getDay());
 
-      const regra = DISPO.find(r =>
-        r.barbeiroId === idBarbeiroPuro &&
-        r.diaSemana === diaDaSemanaBanco
+      const ano = S.date.getFullYear();
+      const mes = String(S.date.getMonth() + 1).padStart(2, '0');
+      const dia = String(S.date.getDate()).padStart(2, '0');
+      const dataFormatadaJS = `${ano}-${mes}-${dia}`;
+
+      // Exceção tem prioridade sobre o padrão
+      const excecaoDoDia = EXCECOES.find(e =>
+        e.barbeiroId === idBarbeiroPuro &&
+        e.data === dataFormatadaJS
       );
 
-      if (!regra || !regra.inicio || !regra.fim) {
-        document.getElementById('tgrid').innerHTML =
-          '<p style="color:#888;font-size:13px;text-align:center;padding:16px 0">Sem disponibilidade neste dia.</p>';
-        return;
+      let hInicio, hFim;
+      if (excecaoDoDia !== undefined) {
+        if (excecaoDoDia.horaInicio === null) {
+          document.getElementById('tgrid').innerHTML =
+            '<p style="color:#888;font-size:13px;text-align:center;padding:16px 0">Sem disponibilidade neste dia.</p>';
+          return;
+        }
+        hInicio = excecaoDoDia.horaInicio;
+        hFim = excecaoDoDia.horaFim;
+      } else {
+        const regra = DISPO.find(r =>
+          r.barbeiroId === idBarbeiroPuro &&
+          r.diaSemana === diaDaSemanaBanco
+        );
+        if (!regra || !regra.inicio || !regra.fim) {
+          document.getElementById('tgrid').innerHTML =
+            '<p style="color:#888;font-size:13px;text-align:center;padding:16px 0">Sem disponibilidade neste dia.</p>';
+          return;
+        }
+        hInicio = regra.inicio;
+        hFim = regra.fim;
       }
-
-      const hInicio = regra.inicio;
-      const hFim = regra.fim;
 
       const slots = [];
       let [hAtual, mAtual] = hInicio.split(':').map(Number);
@@ -345,11 +382,6 @@
         mAtual += 30;
         if (mAtual >= 60) { mAtual = 0; hAtual += 1; }
       }
-
-      const ano = S.date.getFullYear();
-      const mes = String(S.date.getMonth() + 1).padStart(2, '0');
-      const dia = String(S.date.getDate()).padStart(2, '0');
-      const dataFormatadaJS = `${ano}-${mes}-${dia}`;
 
       const duracaoSelecionada = S.srvs.reduce((total, sid) => {
         const srv = SVCS.find(s => s.id === sid);
