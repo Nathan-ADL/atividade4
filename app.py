@@ -477,7 +477,6 @@ def api_cancelar_agendamento(agendamento_id):
         conexao = obter_conexao()
         cursor = conexao.cursor(dictionary=True)
 
-        # Garante que o agendamento pertence a este barbeiro
         cursor.execute(
             "SELECT id FROM agendamento WHERE id=%s AND barbeiro_id=%s",
             (agendamento_id, barbeiro_id)
@@ -486,12 +485,11 @@ def api_cancelar_agendamento(agendamento_id):
             cursor.close(); conexao.close()
             return jsonify({"ok": False, "erro": "Agendamento não encontrado."}), 404
 
-        # Remove os serviços vinculados primeiro (FK)
         cursor.execute(
             "DELETE FROM agendamento_servicos WHERE agendamento_id=%s",
             (agendamento_id,)
         )
-        # Remove o agendamento
+        
         cursor.execute(
             "DELETE FROM agendamento WHERE id=%s",
             (agendamento_id,)
@@ -601,7 +599,7 @@ def api_agenda_get(barbeiro_id):
         conexao = obter_conexao()
         cursor = conexao.cursor(dictionary=True)
 
-        # Padrão semanal
+        
         cursor.execute(
             "SELECT dia_semana, hora_inicio, hora_fim FROM disponibilidade WHERE barbeiro_id=%s",
             (barbeiro_id,)
