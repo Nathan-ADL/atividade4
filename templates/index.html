@@ -344,7 +344,7 @@
       const dia = String(S.date.getDate()).padStart(2, '0');
       const dataFormatadaJS = `${ano}-${mes}-${dia}`;
 
-      // Exceção tem prioridade sobre o padrão
+      
       const excecaoDoDia = EXCECOES.find(e =>
         e.barbeiroId === idBarbeiroPuro &&
         e.data === dataFormatadaJS
