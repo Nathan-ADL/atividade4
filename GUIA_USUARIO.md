@@ -31,7 +31,7 @@ cp .env.example .env
 Edite o arquivo .env conforme necessário:
 
 DB_HOST=db
-DB_USER=user
+DB_USER=root
 DB_PASSWORD=123456
 DB_NAME=barbearia
 
