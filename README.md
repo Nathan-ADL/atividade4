@@ -1,6 +1,7 @@
 Sistema de Barbearia
-1. Visão geral
 
+1. Visão geral
+Senha para o cadastro de novos barbeiros: barber@admin123(configuravel no app.py)
 Este projeto é um sistema web para gerenciamento de barbearia, desenvolvido com o objetivo de permitir o controle de usuários, agendamentos e serviços de forma simples e organizada.
 
 A aplicação foi construída utilizando Flask, MySQL e Docker, garantindo portabilidade entre ambientes locais e em nuvem (AWS EC2).

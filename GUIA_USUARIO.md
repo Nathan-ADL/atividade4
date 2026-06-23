@@ -1,6 +1,8 @@
 GUIA_USUARIO.md
 Sistema de Barbearia - Guia de Uso
 
+Senha para o cadastro de novos barbeiros: barber@admin123(configuravel no app.py)
+
 Este documento tem como objetivo orientar a execução e utilização do sistema de barbearia, tanto em ambiente local quanto em ambiente de produção (AWS EC2), utilizando Docker e Docker Compose.
 
 1. Pré-requisitos
